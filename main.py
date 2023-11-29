@@ -22,7 +22,7 @@ app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+#login_manager.login_view = 'login'
 
 
 ##########
@@ -261,7 +261,7 @@ def get_template_info():
             return jsonify({'message': 'Template not found or unauthorized'}), 404
     else:
         return jsonify({'message': 'Template ID is required'}), 400
-    
+
 
 
 if __name__ == '__main__':

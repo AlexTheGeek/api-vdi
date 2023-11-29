@@ -10,6 +10,9 @@ import uuid
 import datetime
 import mysql.connector
 from argon2 import PasswordHasher
+import back_openstack as openstack
+
+
 
 ################
 ### Vars APP ###
@@ -23,6 +26,8 @@ app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 #login_manager.login_view = 'login'
+
+conn_openstack = openstack.conn
 
 
 ##########
@@ -53,6 +58,7 @@ class TokenUser(db.Model):
 # VM model
 class VM(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+    name = db.Column(db.String(100))
     template_id = db.Column(db.String(36))
     users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
@@ -176,14 +182,19 @@ def check_auth():
 @app.route('/vm', methods=['GET'])
 @login_required
 def get_vms():
-    vms = VM.query.filter_by(users_id=current_user.id).all()
-    return jsonify([vm.id for vm in vms]), 200
+    vms = VM.query.all()
+    return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vms]), 200
 
 @app.route('/vm/create', methods=['POST'])
 @login_required
 def create_vm():
     data = request.get_json()
-    new_vm = VM(template_id=data['template_id'], users_id=current_user.id)
+    new_vm = VM(name=data['template_id']+"---"+current_user.id, template_id=data['template_id'], users_id=current_user.id)
+    template_name = Template.query.filter_by(id=data['template_id']).first().name
+    try:
+        openstack.create_instance(conn_openstack, data['template_id']+"---"+current_user.id, template_name)
+    except:
+        return jsonify({'message': 'VM creation failed'}), 500
     db.session.add(new_vm)
     db.session.commit()
     return jsonify({'message': 'VM created successfully'}), 201
@@ -200,10 +211,15 @@ def vm_status():
 @login_required
 def delete_vm():
     data = request.get_json()
-    vm_id = data.get('vm_id')
+    vm_id = data.get('vm_id') # Voir pour changer en vm_name
     if vm_id:
         vm = VM.query.filter_by(id=vm_id, users_id=current_user.id).first()
         if vm:
+            try:
+                server = conn_openstack.compute.find_server(vm.name)
+                conn_openstack.compute.delete_server(server)
+            except:
+                return jsonify({'message': 'VM deletion failed'}), 500
             db.session.delete(vm)
             db.session.commit()
             return jsonify({'message': 'VM deleted successfully'}), 200
@@ -219,8 +235,8 @@ def delete_vm():
 @app.route('/template', methods=['GET'])
 @login_required
 def get_templates():
-    templates = Template.query.filter_by(users_id=current_user.id).all()
-    return jsonify([template.name for template in templates]), 200
+    templates = Template.query.all()
+    return jsonify([{"id":template.id, "name":template.name, "users_id":template.users_id, "creationDate":template.creationDate} for template in templates]), 200
 
 @app.route('/template/create', methods=['POST'])
 @login_required
@@ -254,11 +270,12 @@ def get_template_info():
     data = request.get_json()
     template_id = data.get('template_id')
     if template_id:
-        template = Template.query.filter_by(id=template_id, users_id=current_user.id).first()
+        template = Template.query.filter_by(id=template_id).first()
         if template:
+            # Ajouter la récupération des infos du tempalte depuis OpenStack
             return jsonify({'message': 'Template found successfully'}), 200
         else:
-            return jsonify({'message': 'Template not found or unauthorized'}), 404
+            return jsonify({'message': 'Template not found'}), 404
     else:
         return jsonify({'message': 'Template ID is required'}), 400
 

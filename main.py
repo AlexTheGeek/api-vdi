@@ -126,6 +126,8 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    # remove token
+    TokenUser.query.filter_by(users_id=current_user.id).delete()
     logout_user()
     return jsonify({'message': 'Logout successful'}), 200
 
@@ -155,7 +157,7 @@ def create_vm():
 @app.route('/vm/status', methods=['GET'])
 @login_required
 def vm_status():
-    # You can implement the logic to retrieve and return the status of a VM based on the user's ID
+    # Todo: get VM status from OpenStack
     return jsonify({'message': 'VM status endpoint'})
 
 

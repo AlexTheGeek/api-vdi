@@ -1,3 +1,6 @@
+##################
+### Librairies ###
+##################
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -8,6 +11,9 @@ import datetime
 import mysql.connector
 from argon2 import PasswordHasher
 
+################
+### Vars APP ###
+################
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi2'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -18,6 +24,10 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+
+##########
+### DB ###
+##########
 
 # User model
 class User(UserMixin, db.Model):
@@ -56,6 +66,9 @@ class Template(db.Model):
     users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
 
 
+#################
+### Functions ###
+#################
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(str(user_id))
@@ -82,11 +95,19 @@ def check_token():
         return jsonify({'message': 'Invalid token'}), 401
 
 
-# Routes
+
+##############
+### Routes ###
+##############
 @app.route('/', methods=['GET'])
 def welcome():
     return jsonify({'message': 'Hello and welcome to the VDI API!'})
 
+
+
+###################
+### User Routes ###
+###################
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -143,6 +164,20 @@ def profile():
         'role': current_user.role
     })
 
+@app.route('/check-auth')
+@login_required
+def check_auth():
+    return jsonify({'message': 'Authentication check successful'})
+
+
+##################
+### VMs Routes ###
+##################
+@app.route('/vm', methods=['GET'])
+@login_required
+def get_vms():
+    vms = VM.query.filter_by(users_id=current_user.id).all()
+    return jsonify([vm.id for vm in vms]), 200
 
 @app.route('/vm/create', methods=['POST'])
 @login_required
@@ -178,10 +213,55 @@ def delete_vm():
         return jsonify({'message': 'VM ID is required'}), 400
 
 
-@app.route('/check-auth')
+#######################
+### Template Routes ###
+#######################
+@app.route('/template', methods=['GET'])
 @login_required
-def check_auth():
-    return jsonify({'message': 'Authentication check successful'})
+def get_templates():
+    templates = Template.query.filter_by(users_id=current_user.id).all()
+    return jsonify([template.name for template in templates]), 200
+
+@app.route('/template/create', methods=['POST'])
+@login_required
+def create_template():
+    data = request.get_json()
+    new_template = Template(name=data['name'], users_id=current_user.id)
+    db.session.add(new_template)
+    db.session.commit()
+    return jsonify({'message': 'Template created successfully'}), 201
+
+@app.route('/template/delete', methods=['DELETE'])
+@login_required
+def delete_template():
+    data = request.get_json()
+    template_id = data.get('template_id')
+    if template_id:
+        template = Template.query.filter_by(id=template_id, users_id=current_user.id).first()
+        if template:
+            db.session.delete(template)
+            db.session.commit()
+            return jsonify({'message': 'Template deleted successfully'}), 200
+        else:
+            return jsonify({'message': 'Template not found or unauthorized'}), 404
+    else:
+        return jsonify({'message': 'Template ID is required'}), 400
+
+
+@app.route('/template/info', methods=['GET'])
+@login_required
+def get_template_info():
+    data = request.get_json()
+    template_id = data.get('template_id')
+    if template_id:
+        template = Template.query.filter_by(id=template_id, users_id=current_user.id).first()
+        if template:
+            return jsonify({'message': 'Template found successfully'}), 200
+        else:
+            return jsonify({'message': 'Template not found or unauthorized'}), 404
+    else:
+        return jsonify({'message': 'Template ID is required'}), 400
+    
 
 
 if __name__ == '__main__':

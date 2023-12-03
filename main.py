@@ -11,13 +11,14 @@ import datetime
 import mysql.connector
 from argon2 import PasswordHasher
 import back_openstack as openstack
-
+from flask_cors import CORS
 
 
 ################
 ### Vars APP ###
 ################
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi2'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -145,6 +146,7 @@ def login():
 
         response = jsonify({'message': 'Login successful'})
         response.headers['Authorization'] = token
+        print(response.headers)
         return response, 200
     else:
         return jsonify({'message': 'Invalid email or password'}), 401

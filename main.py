@@ -208,8 +208,8 @@ def vm_status_template(template_id):
     try:
         vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
         if vm:
-            status = openstack.get_status_server(conn_openstack, vm.name)
-            return jsonify({"status": status}), 200
+            vm_state, status = openstack.get_status_server(conn_openstack, vm.name)
+            return jsonify({"status": status, "vm_state": vm_state}), 200
         else:
             return jsonify({'status': 'stopped'}), 200
     except:
@@ -222,8 +222,8 @@ def vm_status_id(uuid):
     try:
         vm = VM.query.filter_by(id=uuid, users_id=current_user.id).first()
         if vm:
-            status = openstack.get_status_server(conn_openstack, vm.name)
-            return jsonify({"status": status}), 200
+            vm_state, status = openstack.get_status_server(conn_openstack, vm.name)
+            return jsonify({"status": status, "vm_state": vm_state}), 200
         else:
             return jsonify({'status': 'stopped'}), 200
     except:

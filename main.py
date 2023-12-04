@@ -119,7 +119,7 @@ def welcome():
 def register():
     data = request.get_json()
     hashed_password = PasswordHasher().hash(data['password']) 
-    new_user = User(email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
+    new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
                     password=hashed_password, role=data['role'])
     db.session.add(new_user)
     db.session.commit()
@@ -191,7 +191,7 @@ def get_vms():
 @login_required
 def create_vm():
     data = request.get_json()
-    new_vm = VM(name=data['template_id']+"---"+current_user.id, template_id=data['template_id'], users_id=current_user.id)
+    new_vm = VM(id=str(uuid.uuid4()), name=data['template_id']+"---"+current_user.id, template_id=data['template_id'], users_id=current_user.id)
     template_name = Template.query.filter_by(id=data['template_id']).first().name
     try:
         openstack.create_instance(conn_openstack, data['template_id']+"---"+current_user.id, template_name)
@@ -244,7 +244,7 @@ def get_templates():
 @login_required
 def create_template():
     data = request.get_json()
-    new_template = Template(name=data['name'], users_id=current_user.id)
+    new_template = Template(id=str(uuid.uuid4()), name=data['name'], users_id=current_user.id)
     db.session.add(new_template)
     db.session.commit()
     return jsonify({'message': 'Template created successfully'}), 201

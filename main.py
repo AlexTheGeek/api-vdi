@@ -59,7 +59,7 @@ class TokenUser(db.Model):
 # VM model
 class VM(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
-    name = db.Column(db.String(100))
+    name = db.Column(db.String(100), unique=True)
     template_id = db.Column(db.String(36))
     users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
@@ -202,11 +202,59 @@ def create_vm():
     return jsonify({'message': 'VM created successfully'}), 201
 
 
-@app.route('/vm/status', methods=['GET'])
+@app.route('/vm/status/template/<template_id>', methods=['GET'])
 @login_required
-def vm_status():
-    # Todo: get VM status from OpenStack
-    return jsonify({'message': 'VM status endpoint'})
+def vm_status_template(template_id):
+    try:
+        vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
+        if vm:
+            status = openstack.get_status_server(conn_openstack, vm.name)
+            return jsonify({"status": status}), 200
+        else:
+            return jsonify({'status': 'stopped'}), 200
+    except:
+        return jsonify({'message': 'VM status failed'}), 500
+
+
+@app.route('/vm/status/id/<uuid>', methods=['GET'])
+@login_required
+def vm_status_id(uuid):
+    try:
+        vm = VM.query.filter_by(id=uuid, users_id=current_user.id).first()
+        if vm:
+            status = openstack.get_status_server(conn_openstack, vm.name)
+            return jsonify({"status": status}), 200
+        else:
+            return jsonify({'status': 'stopped'}), 200
+    except:
+        return jsonify({'message': 'VM status failed'}), 500
+    
+@app.route('/vm/url/id/<uuid>', methods=['GET'])
+@login_required
+def vm_url_ir(uuid):
+    try:
+        vm_name = VM.query.filter_by(id=uuid, users_id=current_user.id).first().name
+        if vm_name:
+            url_vnc = openstack.get_console_url(conn_openstack, vm_name)
+            return jsonify({"id": url_vnc}), 200
+        else:
+            return jsonify({'message': 'VM not found'}), 404
+    except:
+        return jsonify({'message': 'VM URL failed'}), 500
+    
+
+@app.route('/vm/url/template/<template_id>', methods=['GET'])
+@login_required
+def vm_url_template(template_id):
+    try:
+        vm_name = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first().name
+        if vm_name:
+            url_vnc = openstack.get_console_url(conn_openstack, vm_name)
+            return jsonify({"url": url_vnc}), 200
+        else:
+            return jsonify({'message': 'Template not found'}), 404
+    except:
+        return jsonify({'message': 'VM status failed'}), 500
 
 
 @app.route('/vm/delete', methods=['DELETE'])
@@ -222,7 +270,8 @@ def delete_vm():
                 conn_openstack.compute.delete_server(server)
             except:
                 return jsonify({'message': 'VM deletion failed'}), 500
-            db.session.delete(vm)
+            vmdelete = VM(id=vm.id, name=vm.name, template_id=vm.template_id, users_id=vm.users_id, creationDate=vm.creationDate)
+            db.session.delete(vmdelete)
             db.session.commit()
             return jsonify({'message': 'VM deleted successfully'}), 200
         else:
@@ -266,13 +315,11 @@ def delete_template():
         return jsonify({'message': 'Template ID is required'}), 400
 
 
-@app.route('/template/info', methods=['GET'])
+@app.route('/template/info/<uuid>', methods=['GET'])
 @login_required
-def get_template_info():
-    data = request.get_json()
-    template_id = data.get('template_id')
-    if template_id:
-        template = Template.query.filter_by(id=template_id).first()
+def get_template_info(uuid):
+    if uuid:
+        template = Template.query.filter_by(id=uuid).first()
         if template:
             # Ajouter la récupération des infos du tempalte depuis OpenStack
             return jsonify({'message': 'Template found successfully'}), 200

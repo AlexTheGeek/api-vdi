@@ -74,7 +74,11 @@ def get_infos_project(conn, print_infos=True):
 
 def get_console_url(conn, vm_name:str):
     server = conn.compute.find_server(vm_name)
-    print(server.get_console_url(conn.compute, "novnc"))
+    return server.get_console_url(conn.compute, "novnc")
+
+def get_status_server(conn, vm_name:str):
+    server = conn.compute.find_server(vm_name)
+    return server.status
 
 
 ### Admin only
@@ -117,14 +121,14 @@ def create_instance(conn, vm_name:str, vm_image:str):
     if (used[0] < quota[0]) and (template_ram <= quota[1]-used[1]) and (template_vcpu <= quota[2]-used[2]):
         # key_pair = conn.compute.find_keypair("etudiant1-MB")
         userdata = """#!/bin/sh\nuserdel -rf user\nuseradd -m -s /bin/bash hugo\necho "hugo:azerty" | chpasswd\nsystemctl disable ssh\nsystemctl stop ssh\n"""
-        server = conn.compute.create_server(
+        conn.compute.create_server(
             name=vm_name,
             image_id=image.id,
             flavor_id=flavor.id,
             networks=[{"uuid": PRIVATE_NETWORK_ID}],
             user_data=base64.b64encode(userdata.encode("utf-8")).decode("utf-8"),
         )
-        #server = conn.compute.wait_for_server(server)
+        #conn.compute.wait_for_server(server)
         return 0
     else:
         return 1

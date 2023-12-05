@@ -1,7 +1,7 @@
 ##################
 ### Librairies ###
 ##################
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -12,6 +12,7 @@ import mysql.connector
 from argon2 import PasswordHasher
 import back_openstack as openstack
 from flask_cors import CORS
+import requests
 
 
 ################
@@ -232,29 +233,40 @@ def vm_status_id(uuid):
 @app.route('/vm/url/id/<uuid>', methods=['GET'])
 @login_required
 def vm_url_ir(uuid):
-    try:
-        vm_name = VM.query.filter_by(id=uuid, users_id=current_user.id).first().name
-        if vm_name:
+    vm_name = VM.query.filter_by(id=uuid, users_id=current_user.id).first().name
+    if vm_name:
+        try:
             url_vnc = openstack.get_console_url(conn_openstack, vm_name)
-            return jsonify({"id": url_vnc}), 200
-        else:
-            return jsonify({'message': 'VM not found'}), 404
-    except:
-        return jsonify({'message': 'VM URL failed'}), 500
+        except:
+            return jsonify({'message': 'ERROR URL'}), 500
+        resp = requests.get(url_vnc, verify=False)
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
+        response = Response(resp.content, resp.status_code, headers)
+        return response
+        # return jsonify({"id": url_vnc}), 200
+    else:
+        return jsonify({'message': 'VM not found'}), 404
+
     
 
 @app.route('/vm/url/template/<template_id>', methods=['GET'])
 @login_required
 def vm_url_template(template_id):
-    try:
-        vm_name = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first().name
-        if vm_name:
+    vm_name = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first().name
+    if vm_name:
+        try:
             url_vnc = openstack.get_console_url(conn_openstack, vm_name)
-            return jsonify({"url": url_vnc}), 200
-        else:
-            return jsonify({'message': 'Template not found'}), 404
-    except:
-        return jsonify({'message': 'VM status failed'}), 500
+        except:
+            return jsonify({'message': 'ERROR URL'}), 500
+        resp = requests.get(url_vnc, verify=False)
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
+        response = Response(resp.content, resp.status_code, headers)
+        return response
+        # return jsonify({"url": url_vnc}), 200
+    else:
+        return jsonify({'message': 'Template not found'}), 404
 
 
 @app.route('/vm/delete', methods=['DELETE'])

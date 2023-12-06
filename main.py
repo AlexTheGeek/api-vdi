@@ -208,13 +208,19 @@ def create_vm():
 def vm_status_template(template_id):
     try:
         vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
-        if vm:
-            vm_state, status = openstack.get_status_server(conn_openstack, vm.name)
-            return jsonify({"status": status, "vm_state": vm_state}), 200
-        else:
-            return jsonify({'status': 'stopped'}), 200
     except:
-        return jsonify({'message': 'VM status failed'}), 500
+        return jsonify({'message': 'DB ERROR'}), 500
+    if vm:
+        try:
+            print(vm.name)
+            vm_state, status = openstack.get_status_server(conn_openstack, vm.name)
+            print(vm_state)
+        except:
+            return jsonify({'message': 'VM STATUS FAILLED'}), 500
+        return jsonify({"status": status, "vm_state": vm_state}), 200
+    else:
+        return jsonify({'status': 'stopped'}), 200
+
 
 
 @app.route('/vm/status/id/<uuid>', methods=['GET'])
@@ -273,17 +279,16 @@ def vm_url_template(template_id):
 @login_required
 def delete_vm():
     data = request.get_json()
-    vm_id = data.get('vm_id') # Voir pour changer en vm_name
-    if vm_id:
-        vm = VM.query.filter_by(id=vm_id, users_id=current_user.id).first()
+    template_id = data.get('template_id')
+    if template_id:
+        vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
         if vm:
             try:
                 server = conn_openstack.compute.find_server(vm.name)
                 conn_openstack.compute.delete_server(server)
             except:
                 return jsonify({'message': 'VM deletion failed'}), 500
-            vmdelete = VM(id=vm.id, name=vm.name, template_id=vm.template_id, users_id=vm.users_id, creationDate=vm.creationDate)
-            db.session.delete(vmdelete)
+            db.session.delete(vm)
             db.session.commit()
             return jsonify({'message': 'VM deleted successfully'}), 200
         else:

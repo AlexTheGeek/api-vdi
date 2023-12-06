@@ -18,7 +18,10 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: TEST
-      run: |
-        ls
-        pwd
+    - uses: actions/checkout@v4
+    - name: LS command
+      run: ls
+    - name: PWD command
+      run: pwd
+    - name: cp command
+      run: cp * /home/alex/VDI-API-INSA

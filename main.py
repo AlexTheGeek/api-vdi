@@ -273,6 +273,7 @@ def vm_url_template(template_id):
         # headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
         # response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers)
         # return response
+        print(url_vnc)
         url = url_vnc.rsplit('0/vnc_auto.html', 1)[-1]
         print(url)
         return jsonify({"url": "https://vnc.insa-cvl.com/"+url}), 200

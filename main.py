@@ -117,6 +117,7 @@ def welcome():
 ### User Routes ###
 ###################
 @app.route('/register', methods=['POST'])
+@login_required
 def register():
     data = request.get_json()
     hashed_password = PasswordHasher().hash(data['password']) 

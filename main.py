@@ -24,6 +24,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key'
+app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)

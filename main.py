@@ -117,6 +117,7 @@ def welcome():
 ### User Routes ###
 ###################
 @app.route('/register', methods=['POST'])
+@login_required
 def register():
     data = request.get_json()
     hashed_password = PasswordHasher().hash(data['password']) 
@@ -354,4 +355,4 @@ def get_template_info(uuid):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0", port=5001)

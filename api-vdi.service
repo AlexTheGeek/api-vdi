@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve API VDI
+After=network.target
+
+[Service]
+User=alex
+Group=alex
+WorkingDirectory=/home/alex/VDI-API-INSA
+Environment="PATH=/home/alex/.local/bin"
+ExecStart=/home/alex/.local/bin/gunicorn --workers 3 --bind 0.0.0.0:5001 wsgi:app
+
+[Install]
+WantedBy=multi-user.target

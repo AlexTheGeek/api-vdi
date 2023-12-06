@@ -79,8 +79,10 @@ def get_console_url(conn, vm_name:str):
 
 def get_status_server(conn, vm_name:str):
     server = conn.compute.find_server(vm_name)
-    status = server.to_dict()['status']
-    vm_state = server.to_dict()['vm_state']
+    instance = conn.compute.get_server(server['id'])
+    status = instance.to_dict()['status']
+    vm_state = instance.to_dict()['power_state']
+    print(status, vm_state)
     return vm_state, status
 
 

@@ -245,12 +245,14 @@ def vm_url_ir(uuid):
             url_vnc = openstack.get_console_url(conn_openstack, vm_name)
         except:
             return jsonify({'message': 'ERROR URL'}), 500
-        resp = requests.get(url_vnc, verify=False)
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
-        response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers)
-        return response
-        # return jsonify({"id": url_vnc}), 200
+        # resp = requests.get(url_vnc, verify=False)
+        # excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        # headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
+        # response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers)
+        # return response
+        url = url_vnc.rsplit('0/vnc_auto.html', 1)[-1]
+        print(url)
+        return jsonify({"url": "https://vnc.insa-cvl.com/"+url}), 200
     else:
         return jsonify({'message': 'VM not found'}), 404
 
@@ -265,12 +267,14 @@ def vm_url_template(template_id):
             url_vnc = openstack.get_console_url(conn_openstack, vm_name)
         except:
             return jsonify({'message': 'ERROR URL'}), 500
-        resp = requests.get(url_vnc, verify=False, stream=True)
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
-        response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers)
-        return response
-        # return jsonify({"url": url_vnc}), 200
+        # resp = requests.get(url_vnc, verify=False, stream=True)
+        # excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        # headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
+        # response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers)
+        # return response
+        url = url_vnc.rsplit('0/vnc_auto.html', 1)[-1]
+        print(url)
+        return jsonify({"url": "https://vnc.insa-cvl.com/"+url}), 200
     else:
         return jsonify({'message': 'Template not found'}), 404
 

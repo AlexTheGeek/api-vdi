@@ -132,9 +132,9 @@ def register():
 @app.route('/logincas', methods=['GET'])
 def logincas():
     ticket_id = request.args.get('ticket')
-    data = request.get_json()
+    # data = request.get_json()
     print(ticket_id)
-    print(data)
+    # print(data)
     return jsonify({'message': 'Login successful'+ticket_id}), 200
 
 

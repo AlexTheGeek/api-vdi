@@ -133,10 +133,13 @@ def register():
 @app.route('/logincas', methods=['GET'])
 def logincas():
     ticket_id = request.args.get('ticket')
-    # data = request.get_json()
     print(ticket_id)
-    # print(data)
-    return jsonify({'message': 'Login successful'+ticket_id}), 200
+    if ticket_id:
+        validation_url = "https://cas.insa-cvl.fr/cas/login?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id
+        print(validation_url)
+        response = requests.get(validation_url)
+        print(response)
+    return jsonify({'message': 'Login successful'+ticket_id+response}), 200
 
 
 @app.route('/login', methods=['POST'])

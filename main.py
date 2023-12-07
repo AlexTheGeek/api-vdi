@@ -179,7 +179,7 @@ def logincas():
             db.session.commit()
                 
         login_user(user)
-        token = generate_token(user)
+        token = ticket_id
 
         # remove old token
         TokenUser.query.filter_by(users_id=user.id).delete()
@@ -194,7 +194,7 @@ def logincas():
         response.headers['Authorization'] = token
         print(response.headers)
         return response, 200
-        # return redirect("https://vdi.insa-cvl.com/student", code=302)       
+        # return redirect("https://vdi.insa-cvl.com/student")       
         # return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url, "user_id": user_attributes['user_id']}), 200
     return jsonify({'message': 'Ticket is missing'}), 404
 
@@ -234,6 +234,9 @@ def logout():
     # remove token
     TokenUser.query.filter_by(users_id=current_user.id).delete()
     logout_user()
+    user = User.query.filter_by(users_id=current_user.id).first()
+    if user.role == "cas-user":
+        return redirect("https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com")
     return jsonify({'message': 'Logout successful'}), 200
 
 

@@ -129,7 +129,7 @@ def create_instance(conn, vm_name:str, vm_image:str):
     quota, used = get_infos_project(conn, print_infos=False)
     if (used[0] < quota[0]) and (template_ram <= quota[1]-used[1]) and (template_vcpu <= quota[2]-used[2]):
         # key_pair = conn.compute.find_keypair("etudiant1-MB")
-        userdata = """#!/bin/sh\nuserdel -rf user\nuseradd -m -s /bin/bash hugo\necho "hugo:azerty" | chpasswd\ncat /etc/X11/default-display-manager\necho 'AutomaticLoginEnable = true' >> /etc/gdm3/daemon.conf\necho 'AutomaticLogin = hugo' >> /etc/gdm3/daemon.conf\nsystemctl disable ssh\nsystemctl stop ssh\nreboot\n"""
+        userdata = """#!/bin/sh\nuserdel -rf user\nuseradd -m -s /bin/bash vdi\necho "vdi:azerty" | chpasswd\nsed -i -e 's/^#autologin-guest=false/autologin-guest=false/' -e 's/^#autologin-user=/autologin-user=vdi/' -e 's/^#autologin-user-timeout=0/autologin-user-timeout=0/' /etc/lightdm/lightdm.conf\nsed -i 's/^auth[[:space:]]\+required[[:space:]]\+pam_succeed_if.so[[:space:]]\+user[[:space:]]\+/auth required pam_succeed_if.so user != anything quiet_success/' /etc/pam.d/lightdm-autologin\nsystemctl disable ssh\nsystemctl stop ssh\nreboot\n"""
         # userdata = """#!/bin/sh\nuserdel -rf user\nuseradd -m -s /bin/bash hugo\necho "hugo:azerty" | chpasswd\nsystemctl disable ssh\nsystemctl stop ssh\n"""
         conn.compute.create_server(
             name=vm_name,

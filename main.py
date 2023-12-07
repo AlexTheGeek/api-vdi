@@ -138,8 +138,8 @@ def logincas():
         validation_url = "https://cas.insa-cvl.fr/cas/login?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id
         print(validation_url)
         response = requests.get(validation_url)
-        print(response)
-        return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url, "response": response}), 200
+        print(response.text)
+        return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url}), 200
     return jsonify({'message': 'Login successful', "ticket_id" : ticket_id}), 200
 
 

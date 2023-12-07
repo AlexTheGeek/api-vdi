@@ -257,6 +257,7 @@ def profile():
     if user.role == "cas-user":
         ticket = TokenUser.query.filter_by(users_id=current_user.id).first().token
         if not validate_cas_ticket(ticket):
+            TokenUser.query.filter_by(users_id=current_user.id).delete()
             logout_user()
             return redirect("https://vdi.insa-cvl.com/student")
         

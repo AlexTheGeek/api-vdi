@@ -66,6 +66,7 @@ class VM(db.Model):
     name = db.Column(db.String(100), unique=True)
     template_id = db.Column(db.String(36))
     users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
+    # vncurl = db.Column(db.String(200))
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
@@ -292,6 +293,8 @@ def create_vm():
         openstack.create_instance(conn_openstack, data['template_id']+"---"+current_user.id, template_name)
     except:
         return jsonify({'message': 'VM creation failed'}), 500
+    # url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
+    # new_vm.vncurl =  "https://vnc.insa-cvl.fr"+url_vnc.rsplit('0/vnc_auto.html?path=', 1)[-1]
     db.session.add(new_vm)
     db.session.commit()
     return jsonify({'message': 'VM created successfully'}), 201

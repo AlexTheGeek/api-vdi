@@ -4,6 +4,7 @@
 from flask import Flask, request, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_cas import CAS
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 import uuid
@@ -25,6 +26,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key'
 app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com'
+app.config['CAS_SERVER'] = 'https://cas.insa-cvl.fr/cas'
+cas = CAS(app)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)

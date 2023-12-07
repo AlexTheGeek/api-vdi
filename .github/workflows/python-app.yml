@@ -24,7 +24,7 @@ jobs:
     - name: PWD command
       run: pwd
     - name: cp command
-      run: cp * /home/alex/VDI-API-INSA
+      run: cp -r * /home/alex/VDI-API-INSA
     - name: api-service restart
       run: sudo systemctl restart api-vdi
     - name: api-service status

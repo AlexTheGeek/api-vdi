@@ -1,7 +1,7 @@
 ##################
 ### Librairies ###
 ##################
-from flask import Flask, request, jsonify, Response, redirect
+from flask import Flask, request, jsonify, Response, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -190,10 +190,13 @@ def logincas():
         db.session.add(new_token)
         db.session.commit()
 
-        response = jsonify({'message': 'Login successful'})
-        response.headers['Authorization'] = token
-        print(response.headers)
-        return response, 200
+        custom_headers = {'Authorization': token}
+        return render_template('login_redirect', custom_headers=custom_headers)
+
+        # response = jsonify({'message': 'Login successful'})
+        # response.headers['Authorization'] = token
+        # print(response.headers)
+        # return response, 200
         # return redirect("https://vdi.insa-cvl.com/student")       
         # return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url, "user_id": user_attributes['user_id']}), 200
     return jsonify({'message': 'Ticket is missing'}), 404

@@ -158,7 +158,7 @@ def logincas():
         except:
             return jsonify({'message': 'Ticket validation failed'}), 500
         print(response.text)
-        user_attributes = extract_user_attributes(response.text)
+        user_attributes = extract_user_info(response.text)
         print(user_attributes)
         return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url}), 200
     return jsonify({'message': 'Ticket is missing'}), 404

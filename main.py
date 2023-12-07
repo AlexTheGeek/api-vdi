@@ -127,7 +127,9 @@ def extract_user_info(xml_response):
 
 
 def validate_cas_ticket(ticket):
+    print(ticket)
     validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket
+    print(validation_url)
     response = requests.get(validation_url)
     print(response.text)
     if 'authenticationSuccess' in response.text:

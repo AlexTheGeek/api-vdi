@@ -142,6 +142,8 @@ def welcome():
 @login_required
 def register():
     data = request.get_json()
+    if not data or not data['email'] or not data['password'] or not data['first_name'] or not data['last_name'] or not data['role']:
+        return jsonify({'message': 'Please provide all the required informations (email, password, first_name, last_name)'}), 400
     hashed_password = PasswordHasher().hash(data['password']) 
     new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
                     password=hashed_password, role=data['role'])
@@ -205,10 +207,14 @@ def logincas():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
+    
+    if not data or not data['email'] or not data['password']:
+        return jsonify({'message': 'Please provide email and password'}), 400
+    
     user = User.query.filter_by(email=data['email']).first()
     
-    if user.role == "cas-user":
-        return jsonify({'message': 'Login failed'}), 401
+    if user['email'].includes("@insa-cvl.fr") or user.role == "cas-user":
+        return jsonify({'message': 'Please use CAS login'}), 403
     
     if user and PasswordHasher().verify(user.password, data['password']):
         login_user(user)
@@ -274,6 +280,9 @@ def get_vms():
 @login_required
 def create_vm():
     data = request.get_json()
+    if not data or not data['template_id']:
+        return jsonify({'message': 'Please provide a template ID'}), 400
+    
     new_vm = VM(id=str(uuid.uuid4()), name=data['template_id']+"---"+current_user.id, template_id=data['template_id'], users_id=current_user.id)
     template_name = Template.query.filter_by(id=data['template_id']).first().name
     try:
@@ -288,6 +297,8 @@ def create_vm():
 @app.route('/vm/status/template/<template_id>', methods=['GET'])
 @login_required
 def vm_status_template(template_id):
+    if not template_id:
+        return jsonify({'message': 'Please provide a template ID'}), 400
     try:
         vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
     except:
@@ -308,6 +319,8 @@ def vm_status_template(template_id):
 @app.route('/vm/status/id/<uuid>', methods=['GET'])
 @login_required
 def vm_status_id(uuid):
+    if not uuid:
+        return jsonify({'message': 'Please provide a VM ID'}), 400
     try:
         vm = VM.query.filter_by(id=uuid, users_id=current_user.id).first()
         if vm:
@@ -321,6 +334,8 @@ def vm_status_id(uuid):
 @app.route('/vm/url/id/<uuid>', methods=['GET'])
 @login_required
 def vm_url_ir(uuid):
+    if not uuid:
+        return jsonify({'message': 'Please provide a VM ID'}), 400
     vm_name = VM.query.filter_by(id=uuid, users_id=current_user.id).first().name
     if vm_name:
         try:
@@ -343,6 +358,8 @@ def vm_url_ir(uuid):
 @app.route('/vm/url/template/<template_id>', methods=['GET'])
 @login_required
 def vm_url_template(template_id):
+    if not template_id:
+        return jsonify({'message': 'Please provide a template ID'}), 400
     vm_name = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first().name
     if vm_name:
         try:
@@ -367,6 +384,8 @@ def vm_url_template(template_id):
 def delete_vm():
     data = request.get_json()
     template_id = data.get('template_id')
+    if not template_id:
+        return jsonify({'message': 'Please provide a template ID'}), 400
     if template_id:
         vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
         if vm:
@@ -397,6 +416,8 @@ def get_templates():
 @login_required
 def create_template():
     data = request.get_json()
+    if not data or not data['name']:
+        return jsonify({'message': 'Please provide a name'}), 400
     new_template = Template(id=str(uuid.uuid4()), name=data['name'], users_id=current_user.id)
     db.session.add(new_template)
     db.session.commit()
@@ -407,6 +428,8 @@ def create_template():
 def delete_template():
     data = request.get_json()
     template_id = data.get('template_id')
+    if not template_id:
+        return jsonify({'message': 'Please provide a template ID'}), 400
     if template_id:
         template = Template.query.filter_by(id=template_id, users_id=current_user.id).first()
         if template:
@@ -422,6 +445,8 @@ def delete_template():
 @app.route('/template/info/<uuid>', methods=['GET'])
 @login_required
 def get_template_info(uuid):
+    if not uuid:
+        return jsonify({'message': 'Please provide a template ID'}), 400
     if uuid:
         template = Template.query.filter_by(id=uuid).first()
         if template:

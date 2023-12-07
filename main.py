@@ -135,7 +135,7 @@ def logincas():
     ticket_id = request.args.get('ticket')
     print(ticket_id)
     if ticket_id:
-        validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id
+        validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id+"&attributes=cn,eduPersonPrincipalName,givenName,mail,sn,uid"
         print(validation_url)
         response = requests.get(validation_url)
         print(response.text)

@@ -1,0 +1,11 @@
+[Unit]
+Description=Python VDI Scheduler Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/alex/VDI-API-INSA/scheduler.py
+Restart=always
+User=alex
+
+[Install]
+WantedBy=default.target

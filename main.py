@@ -126,6 +126,14 @@ def extract_user_info(xml_response):
     return user_info
 
 
+def validate_cas_ticket(ticket):
+    validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket
+    response = requests.get(validation_url)
+    if 'authenticationSuccess' in response.text:
+        return True
+    else:
+        return False
+
 ##############
 ### Routes ###
 ##############
@@ -236,13 +244,24 @@ def logout():
     logout_user()
     user = User.query.filter_by(users_id=current_user.id).first()
     if user.role == "cas-user":
-        return redirect("https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com")
+        return jsonify({'message': 'Logout successful', 'cas':"https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com"}), 200
+        # return redirect("https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com")
     return jsonify({'message': 'Logout successful'}), 200
 
 
 @app.route('/profile')
 @login_required
 def profile():
+    user = User.query.filter_by(id=current_user.id).first()
+    
+    if user.role == "cas-user":
+        ticket = TokenUser.query.filter_by(users_id=current_user.id).first().token
+        if not validate_cas_ticket(ticket):
+            logout_user()
+            return redirect("https://vdi.insa-cvl.com/student")
+        
+    
+    
     return jsonify({
         'id': current_user.id,
         'first_name': current_user.first_name,

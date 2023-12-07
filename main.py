@@ -105,19 +105,22 @@ def check_token():
     else:
         return jsonify({'message': 'Invalid token'}), 401
 
-def extract_user_attributes(xml_response):
-    user_attributes = {}
+def extract_user_info(xml_response):
+    user_info = {}
     root = ET.fromstring(xml_response)
 
-    # Assume that attributes are nested under the <cas:attributes> element
-    attributes_element = root.find('.//cas:attributes', namespaces={'cas': 'http://www.yale.edu/tp/cas'})
+    auth_success_element = root.find('.//cas:authenticationSuccess')
 
-    if attributes_element is not None:
-        for attribute in attributes_element:
-            # Assume that each attribute is a key-value pair
-            user_attributes[attribute.tag] = attribute.text
+    if auth_success_element is not None:
+        user_info['user_id'] = auth_success_element.find('.//cas:user').text
 
-    return user_attributes
+        attributes_element = auth_success_element.find('.//cas:attributes')
+        if attributes_element is not None:
+            for attribute in attributes_element:
+                # Assume that each attribute is a key-value pair
+                user_info[attribute.tag] = attribute.text
+
+    return user_info
 
 
 ##############

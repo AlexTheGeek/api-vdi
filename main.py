@@ -13,6 +13,7 @@ from argon2 import PasswordHasher
 import back_openstack as openstack
 from flask_cors import CORS
 import requests
+import xml.etree.ElementTree as ET
 
 
 
@@ -104,6 +105,19 @@ def check_token():
     else:
         return jsonify({'message': 'Invalid token'}), 401
 
+def extract_user_attributes(xml_response):
+    user_attributes = {}
+    root = ET.fromstring(xml_response)
+
+    # Assume that attributes are nested under the <cas:attributes> element
+    attributes_element = root.find('.//cas:attributes', namespaces={'cas': 'http://www.yale.edu/tp/cas'})
+
+    if attributes_element is not None:
+        for attribute in attributes_element:
+            # Assume that each attribute is a key-value pair
+            user_attributes[attribute.tag] = attribute.text
+
+    return user_attributes
 
 
 ##############
@@ -141,6 +155,8 @@ def logincas():
         except:
             return jsonify({'message': 'Ticket validation failed'}), 500
         print(response.text)
+        user_attributes = extract_user_attributes(response.text)
+        print(user_attributes)
         return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url}), 200
     return jsonify({'message': 'Ticket is missing'}), 404
 

@@ -1,7 +1,7 @@
 ##################
 ### Librairies ###
 ##################
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -162,8 +162,16 @@ def logincas():
             return jsonify({'message': 'Ticket validation failed'}), 500
         print(response.text)
         user_attributes = extract_user_info(response.text)
-        print(user_attributes)
-        return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url}), 200
+        print(user_attributes['user_id'])
+        user = User()
+        user.id = user_attributes['user_id']
+        user.email = user_attributes['user_id']+"@insa-cvl.fr" #user_attributes['mail']
+        user.first_name = user_attributes['user_id'] #user_attributes['givenName']
+        user.last_name = user_attributes['user_id'] #user_attributes['sn']
+        user.role = "user"
+        login_user(user)
+        return redirect("https://vdi.insa-cvl.com/student", code=302)       
+        # return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url, "user_id": user_attributes['user_id']}), 200
     return jsonify({'message': 'Ticket is missing'}), 404
 
 

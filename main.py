@@ -283,6 +283,9 @@ def create_vm():
     if not data or not data['template_id']:
         return jsonify({'message': 'Please provide a template ID'}), 400
     
+    if VM.query.filter_by(template_id=data['template_id'], users_id=current_user.id).all():
+        return jsonify({'message': 'VM already exists'}), 409
+    
     new_vm = VM(id=str(uuid.uuid4()), name=data['template_id']+"---"+current_user.id, template_id=data['template_id'], users_id=current_user.id)
     template_name = Template.query.filter_by(id=data['template_id']).first().name
     try:

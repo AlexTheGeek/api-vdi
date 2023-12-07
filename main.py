@@ -126,17 +126,6 @@ def extract_user_info(xml_response):
     return user_info
 
 
-def validate_cas_ticket(ticket):
-    print(ticket)
-    validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket
-    print(validation_url)
-    response = requests.get(validation_url)
-    print(response.text)
-    if 'authenticationSuccess' in response.text:
-        return True
-    else:
-        return False
-
 ##############
 ### Routes ###
 ##############
@@ -190,7 +179,7 @@ def logincas():
             db.session.commit()
                 
         login_user(user)
-        token = ticket_id
+        token = generate_token(user)
 
         # remove old token
         TokenUser.query.filter_by(users_id=user.id).delete()
@@ -255,17 +244,6 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-    user = User.query.filter_by(id=current_user.id).first()
-    
-    if user.role == "cas-user":
-        ticket = TokenUser.query.filter_by(users_id=current_user.id).first().token
-        if not validate_cas_ticket(ticket):
-            TokenUser.query.filter_by(users_id=current_user.id).delete()
-            logout_user()
-            return redirect("https://vdi.insa-cvl.com/student")
-        
-    
-    
     return jsonify({
         'id': current_user.id,
         'first_name': current_user.first_name,

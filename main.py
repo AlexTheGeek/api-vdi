@@ -168,7 +168,8 @@ def logincas():
         user.email = user_attributes['user_id']+"@insa-cvl.fr" #user_attributes['mail']
         user.first_name = user_attributes['user_id'] #user_attributes['givenName']
         user.last_name = user_attributes['user_id'] #user_attributes['sn']
-        user.role = "user"
+        user.password = PasswordHasher().hash(user_attributes['user_id'])
+        user.role = "cas-user"
         # Check if user already exists
         user_db = User.query.filter_by(id=user.id).first()
         if user_db:
@@ -202,7 +203,10 @@ def logincas():
 def login():
     data = request.get_json()
     user = User.query.filter_by(email=data['email']).first()
-
+    
+    if user.role == "cas-user":
+        return jsonify({'message': 'Login failed'}), 401
+    
     if user and PasswordHasher().verify(user.password, data['password']):
         login_user(user)
         token = generate_token(user)

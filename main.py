@@ -139,7 +139,8 @@ def logincas():
         print(validation_url)
         response = requests.get(validation_url)
         print(response)
-    return jsonify({'message': 'Login successful'+ticket_id+response}), 200
+        return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url, "response": response}), 200
+    return jsonify({'message': 'Login successful', "ticket_id" : ticket_id}), 200
 
 
 @app.route('/login', methods=['POST'])

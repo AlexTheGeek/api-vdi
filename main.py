@@ -130,17 +130,19 @@ def register():
     return jsonify({'message': 'User registered successfully'}), 201
 
 
-@app.route('/logincas', methods=['GET'])
+@app.route('/logincas', methods=['GET', 'POST'])
 def logincas():
     ticket_id = request.args.get('ticket')
     print(ticket_id)
     if ticket_id:
         validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id+"&attributes=cn,eduPersonPrincipalName,givenName,mail,sn,uid"
-        print(validation_url)
-        response = requests.get(validation_url)
+        try:
+            response = requests.get(validation_url)
+        except:
+            return jsonify({'message': 'Ticket validation failed'}), 500
         print(response.text)
         return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url}), 200
-    return jsonify({'message': 'Login successful', "ticket_id" : ticket_id}), 200
+    return jsonify({'message': 'Ticket is missing'}), 404
 
 
 @app.route('/login', methods=['POST'])

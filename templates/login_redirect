@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Successful - Redirecting</title>
-    <meta http-equiv="refresh" content="10;url=https://vdi.insa-cvl.com">
+    <meta http-equiv="refresh" content="1;url=https://vdi.insa-cvl.com">
     {% for header, value in custom_headers.items() %}
         <meta name="{{ header }}" content="{{ value }}">
     {% endfor %}
 </head>
 <body>
     <h1>Login Successful</h1>
-    <p>This page will automatically redirect in 10 seconds...</p>
+    <p>This page will automatically redirect in 1 second...</p>
     <p>If it doesn't, <a href="https://vdi.insa-cvl.com">click here</a>.</p>
 </body>
 </html>

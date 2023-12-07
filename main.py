@@ -236,9 +236,9 @@ def logout():
     user = User.query.filter_by(id=current_user.id).first()
     logout_user()
     if user.role == "cas-user":
-        return jsonify({'message': 'Logout successful', 'cas':"https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com"}), 200
+        return jsonify({'message': 'Logout successful', 'cas': True}), 200
         # return redirect("https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com")
-    return jsonify({'message': 'Logout successful'}), 200
+    return jsonify({'message': 'Logout successful', 'cas': False}), 200
 
 
 @app.route('/profile')

@@ -110,14 +110,14 @@ def extract_user_info(xml_response):
     root = ET.fromstring(xml_response)
 
     # Find the <cas:authenticationSuccess> element
-    auth_success_element = root.find('.//cas:authenticationSuccess', namespaces={'cas': ''})
+    auth_success_element = root.find('.//cas:authenticationSuccess', namespaces={'cas': 'http://www.yale.edu/tp/cas'})
 
     if auth_success_element is not None:
         # Extract the <cas:user> element (user ID)
-        user_info['user_id'] = auth_success_element.find('.//cas:user', namespaces={'cas': ''}).text
+        user_info['user_id'] = auth_success_element.find('.//cas:user', namespaces={'cas': 'http://www.yale.edu/tp/cas'}).text
 
         # Extract attributes if present
-        attributes_element = auth_success_element.find('.//cas:attributes', namespaces={'cas': ''})
+        attributes_element = auth_success_element.find('.//cas:attributes', namespaces={'cas': 'http://www.yale.edu/tp/cas'})
         if attributes_element is not None:
             for attribute in attributes_element:
                 # Assume that each attribute is a key-value pair

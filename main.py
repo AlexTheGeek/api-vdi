@@ -169,6 +169,14 @@ def logincas():
         user.first_name = user_attributes['user_id'] #user_attributes['givenName']
         user.last_name = user_attributes['user_id'] #user_attributes['sn']
         user.role = "user"
+        # Check if user already exists
+        user_db = User.query.filter_by(id=user.id).first()
+        if user_db:
+            user = user_db
+        else:
+            db.session.add(user)
+            db.session.commit()
+                
         login_user(user)
         token = generate_token(user)
 

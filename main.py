@@ -121,7 +121,7 @@ def extract_user_info(xml_response):
         if attributes_element is not None:
             for attribute in attributes_element:
                 # Assume that each attribute is a key-value pair
-                user_info[attribute.tag] = attribute.text
+                user_info[attribute.tag[28:]] = attribute.text
 
     return user_info
 

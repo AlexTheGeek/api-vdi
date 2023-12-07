@@ -170,7 +170,22 @@ def logincas():
         user.last_name = user_attributes['user_id'] #user_attributes['sn']
         user.role = "user"
         login_user(user)
-        return redirect("https://vdi.insa-cvl.com/student", code=302)       
+        token = generate_token(user)
+
+        # remove old token
+        TokenUser.query.filter_by(users_id=user.id).delete()
+
+        # Store token in tokens_user table
+        new_token = TokenUser(users_id=user.id, token=token)
+
+        db.session.add(new_token)
+        db.session.commit()
+
+        response = jsonify({'message': 'Login successful'})
+        response.headers['Authorization'] = token
+        print(response.headers)
+        return response, 200
+        # return redirect("https://vdi.insa-cvl.com/student", code=302)       
         # return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url, "user_id": user_attributes['user_id']}), 200
     return jsonify({'message': 'Ticket is missing'}), 404
 

@@ -233,8 +233,7 @@ def login():
 def logout():
     # remove token
     TokenUser.query.filter_by(users_id=current_user.id).delete()
-    user = User.query.filter_by(users_id=current_user.id).first()
-    print(user.role)
+    user = User.query.filter_by(id=current_user.id).first()
     logout_user()
     if user.role == "cas-user":
         return jsonify({'message': 'Logout successful', 'cas':"https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com"}), 200

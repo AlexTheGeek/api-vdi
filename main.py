@@ -13,6 +13,8 @@ from argon2 import PasswordHasher
 import back_openstack as openstack
 from flask_cors import CORS
 import requests
+from cas import CASClient
+
 
 
 ################
@@ -25,6 +27,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key'
 app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com'
+
+cas_server_url = "https://cas.insa-cvl.fr/cas"
+service_url = "https://api.insa-cvl.com"
+cas = CASClient(cas_server_url, service_url)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -134,6 +140,9 @@ def logincas():
     ticket_id = request.args.get('ticket')
     # data = request.get_json()
     print(ticket_id)
+    # Get user information
+    user_info = cas.get_user()
+    print("User Info:", user_info)
     # print(data)
     return jsonify({'message': 'Login successful'+ticket_id}), 200
 

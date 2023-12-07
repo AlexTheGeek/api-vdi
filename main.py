@@ -213,7 +213,7 @@ def login():
     
     user = User.query.filter_by(email=data['email']).first()
     
-    if user.email.find("@insa-cvl.fr") == -1 or user.role.find("cas") == -1:
+    if user.email.find("@insa-cvl.fr") != -1 or user.role.find("cas") != -1:
         return jsonify({'message': 'Please use CAS login'}), 403
     
     if user and PasswordHasher().verify(user.password, data['password']):

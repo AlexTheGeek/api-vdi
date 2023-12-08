@@ -137,31 +137,42 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def check_student(user):
-    if user.role.find("user") != -1:
-        return jsonify({'message': 'Unauthorized'}), 403
-    return True
-
+def check_student(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if hasattr(current_user, 'role') and 'user' in current_user.role:
+            return func(*args, **kwargs)
+        else:
+            abort(403)
+    return wrapper
 
 def check_admin(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        # Assuming you have a current_user object with a role attribute
         if hasattr(current_user, 'role') and 'admin' in current_user.role:
             return func(*args, **kwargs)
         else:
             abort(403)
     return wrapper
 
-def check_prof(user):
-    if user.role.find("prof") != -1:
-        return jsonify({'message': 'Unauthorized'}), 403
-    return True
+def check_prof(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if hasattr(current_user, 'role') and 'prof' in current_user.role:
+            return func(*args, **kwargs)
+        else:
+            abort(403)
+    return wrapper
 
-def check_prof_admin(user):
-    if user.role.find("prof") != -1 or current_user.role.find("admin") != -1:
-        return jsonify({'message': 'Unauthorized'}), 403
-    return True
+def check_prof_admin(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if hasattr(current_user, 'role') and ('prof' in current_user.role or 'admin' in current_user.role):
+            return func(*args, **kwargs)
+        else:
+            abort(403)
+    return wrapper
+
 
 ##############
 ### Routes ###
@@ -190,7 +201,7 @@ def register():
 
 @app.route('/createuser', methods=['POST'])
 @login_required
-# @check_prof_admin
+@check_prof_admin
 def create_user():
     data = request.get_json()
     if not data or not data['email'] or not data['first_name'] or not data['last_name']:
@@ -346,14 +357,14 @@ def check_auth():
 
 @app.route('/users', methods=['GET'])
 @login_required
-# @check_admin
+@check_admin
 def get_users():
     users = User.query.all()
     return jsonify([{"id":user.id, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "role":user.role} for user in users]), 200
 
 @app.route('/roles', methods=['GET'])
 @login_required
-# @check_admin
+@check_admin
 def get_roles():
     roles = ["user", "prof", "admin", "cas-user", "cas-prof", "cas-admin"]
     return jsonify(roles), 200
@@ -370,14 +381,14 @@ def get_myusers():
 ##################
 @app.route('/vm', methods=['GET'])
 @login_required
-# @check_admin
+@check_admin
 def get_vms():
     vms = VM.query.all()
     return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vms]), 200
 
 @app.route('/myvmsusers', methods=['GET'])
 @login_required
-# @check_prof
+@check_prof
 def get_myvmsusers():
     vm = VM.query.filter(VM.users_id.like("%"+current_user.id)).all()
     return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vm]), 200

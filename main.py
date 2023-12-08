@@ -135,27 +135,23 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def check_student(user_id):
-    print(user_id)
-    if current_user.role.find("user") != -1:
+def check_student(user):
+    if user.role.find("user") != -1:
         return jsonify({'message': 'Unauthorized'}), 403
     return True
 
-def check_admin(user_id):
-    print(user_id)
-    if current_user.role.find("admin") != -1:
+def check_admin(user):
+    if user.role.find("admin") != -1:
         return jsonify({'message': 'Unauthorized'}), 403
     return True
 
-def check_prof(user_id):
-    print(user_id)
-    if current_user.role.find("prof") != -1:
+def check_prof(user):
+    if user.role.find("prof") != -1:
         return jsonify({'message': 'Unauthorized'}), 403
     return True
 
-def check_prof_admin(user_id):
-    print(user_id)
-    if current_user.role.find("prof") != -1 or current_user.role.find("admin") != -1:
+def check_prof_admin(user):
+    if user.role.find("prof") != -1 or current_user.role.find("admin") != -1:
         return jsonify({'message': 'Unauthorized'}), 403
     return True
 

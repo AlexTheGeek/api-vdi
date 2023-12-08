@@ -14,6 +14,8 @@ import back_openstack as openstack
 from flask_cors import CORS
 import requests
 import xml.etree.ElementTree as ET
+import random
+import string
 
 
 
@@ -47,6 +49,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20))
+    #cas = db.Column(db.Boolean, default=True)
     tokens = db.relationship('TokenUser', backref='user', lazy=True)
     vms = db.relationship('VM', backref='user', lazy=True)
     templates = db.relationship('Template', backref='user', lazy=True)
@@ -126,6 +129,31 @@ def extract_user_info(xml_response):
 
     return user_info
 
+def get_random_string(length):
+    # choose from all lowercase letter
+    letters = string.ascii_lowercase
+    result_str = ''.join(random.choice(letters) for i in range(length))
+    return result_str
+
+def check_student():
+    if current_user.role.find("user") != -1:
+        return jsonify({'message': 'Unauthorized'}), 403
+    return True
+
+def check_admin():
+    if current_user.role.find("admin") != -1:
+        return jsonify({'message': 'Unauthorized'}), 403
+    return True
+
+def check_prof():
+    if current_user.role.find("prof") != -1:
+        return jsonify({'message': 'Unauthorized'}), 403
+    return True
+
+def check_prof_admin():
+    if current_user.role.find("prof") != -1 or current_user.role.find("admin") != -1:
+        return jsonify({'message': 'Unauthorized'}), 403
+    return True
 
 ##############
 ### Routes ###
@@ -151,6 +179,46 @@ def register():
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'message': 'User registered successfully'}), 201
+
+@app.route('/createuser', methods=['POST'])
+@login_required
+@check_prof_admin
+def create_user():
+    data = request.get_json()
+    if not data or not data['email'] or not data['first_name'] or not data['last_name']:
+        return jsonify({'message': 'Please provide all the required informations (email, first_name, last_name)'}), 400
+    random_password = get_random_string(15)
+    print(random_password)
+    hashed_password = PasswordHasher().hash() 
+    new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
+                    password=hashed_password, role="user")
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'message': 'User created successfully', 'password': 'random_password'}), 201
+
+@app.route('/updatepassword', methods=['POST'])
+@login_required
+def update_password():
+    data = request.get_json()
+    if not data or not data['password']:
+        return jsonify({'message': 'Please provide a new password'}), 400
+    hashed_password = PasswordHasher().hash(data['password']) 
+    user = User.query.filter_by(id=current_user.id).first()
+    user.password = hashed_password
+    db.session.commit()
+    return jsonify({'message': 'Password updated successfully'}), 200
+
+@app.route('/updaterole', methods=['POST'])
+@login_required
+@check_admin
+def update_role():
+    data = request.get_json()
+    if not data or not data['role'] or data['user_id']:
+        return jsonify({'message': 'Please provide a new and the user_id'}), 400
+    user = User.query.filter_by(id=data['user_id']).first()
+    user.role = data['role']
+    db.session.commit()
+    return jsonify({'message': 'Role updated successfully'}), 200
 
 
 @app.route('/logincas', methods=['GET', 'POST'])
@@ -268,14 +336,43 @@ def check_auth():
     return jsonify({'message': 'Authentication check successful'})
 
 
+@app.route('/users', methods=['GET'])
+@login_required
+@check_admin
+def get_users():
+    users = User.query.all()
+    return jsonify([{"id":user.id, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "role":user.role} for user in users]), 200
+
+@app.route('/roles', methods=['GET'])
+@login_required
+@check_admin
+def get_roles():
+    roles = ["user", "prof", "admin", "cas-user", "cas-prof", "cas-admin"]
+    return jsonify(roles), 200
+
+@app.route('/myusers', methods=['GET'])
+@login_required
+@check_prof
+def get_myusers():
+    users = User.query.filter(User.role.like("%"+current_user.id)).all()
+    return jsonify([{"id":user.id, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "role":user.role} for user in users]), 200
+
 ##################
 ### VMs Routes ###
 ##################
 @app.route('/vm', methods=['GET'])
 @login_required
+@check_admin
 def get_vms():
     vms = VM.query.all()
     return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vms]), 200
+
+@app.route('/myvmsusers', methods=['GET'])
+@login_required
+@check_prof
+def get_myvmsusers():
+    vm = VM.query.filter(VM.users_id.like("%"+current_user.id)).all()
+    return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vm]), 200
 
 @app.route('/vm/create', methods=['POST'])
 @login_required

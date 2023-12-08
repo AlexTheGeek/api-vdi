@@ -1,7 +1,7 @@
 ##################
 ### Librairies ###
 ##################
-from flask import Flask, request, jsonify, Response, redirect, render_template
+from flask import Flask, request, jsonify, Response, redirect, render_template, abort, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -16,6 +16,8 @@ import requests
 import xml.etree.ElementTree as ET
 import random
 import string
+from functools import wraps
+
 
 
 
@@ -140,10 +142,16 @@ def check_student(user):
         return jsonify({'message': 'Unauthorized'}), 403
     return True
 
-def check_admin(user):
-    if user.role.find("admin") != -1:
-        return jsonify({'message': 'Unauthorized'}), 403
-    return True
+
+def check_admin(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # Assuming you have a current_user object with a role attribute
+        if hasattr(current_user, 'role') and 'admin' in current_user.role:
+            return func(*args, **kwargs)
+        else:
+            abort(403)
+    return wrapper
 
 def check_prof(user):
     if user.role.find("prof") != -1:
@@ -210,7 +218,7 @@ def update_password():
 
 @app.route('/updaterole', methods=['POST'])
 @login_required
-# @check_admin
+@check_admin
 def update_role():
     data = request.get_json()
     if not data or not data['role'] or data['user_id']:

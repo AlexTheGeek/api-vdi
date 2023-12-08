@@ -345,7 +345,7 @@ def get_users():
 
 @app.route('/roles', methods=['GET'])
 @login_required
-@check_admin
+# @check_admin
 def get_roles():
     roles = ["user", "prof", "admin", "cas-user", "cas-prof", "cas-admin"]
     return jsonify(roles), 200

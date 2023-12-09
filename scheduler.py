@@ -39,7 +39,7 @@ def synchronize_template_image():
 
     for template in templates_db:
         if template not in images_openstack:
-            cursor.execute("DELETE FROM template WHERE name = %s", (template))
+            cursor.execute("DELETE FROM template WHERE name = %s", (template, ))
             db.commit()
             
     db.close()

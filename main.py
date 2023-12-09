@@ -51,7 +51,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20))
-    #cas = db.Column(db.Boolean, default=True)
+    cas = db.Column(db.Boolean, default=True)
     parent = db.Column(db.String(36))
     tokens = db.relationship('TokenUser', backref='user', lazy=True)
     vms = db.relationship('VM', backref='user', lazy=True)
@@ -382,7 +382,7 @@ def get_roles():
 @login_required
 # @check_prof
 def get_myusers():
-    users = User.query.filter(User.role.like("%"+current_user.id)).all()
+    users = User.query.filter(User.query.filter_by(parent=current_user.id)).all()
     return jsonify([{"id":user.id, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "role":user.role} for user in users]), 200
 
 ##################
@@ -399,6 +399,7 @@ def get_vms():
 @login_required
 @check_prof
 def get_myvmsusers():
+    # à changer
     vm = VM.query.filter(VM.users_id.like("%"+current_user.id)).all()
     return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vm]), 200
 

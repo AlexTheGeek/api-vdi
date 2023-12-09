@@ -17,6 +17,7 @@ import xml.etree.ElementTree as ET
 import random
 import string
 from functools import wraps
+from flask_migrate import Migrate
 
 
 
@@ -33,6 +34,7 @@ app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key'
 app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com'
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 #login_manager.login_view = 'login'
 
@@ -211,7 +213,7 @@ def create_user():
     print(random_password)
     hashed_password = PasswordHasher().hash(random_password) 
     new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
-                    password=hashed_password, role="user")
+                    password=hashed_password, role="user", parent=current_user.id)
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'message': 'User created successfully', 'password': random_password}), 201
@@ -594,4 +596,5 @@ def get_template_info(uuid):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        db.session.commit()
     app.run(debug=True, host="0.0.0.0", port=5001)

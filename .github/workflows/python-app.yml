@@ -29,5 +29,8 @@ jobs:
       run: sudo systemctl restart api-vdi
     - name: api-service status
       run: sudo systemctl status api-vdi
-
+    - name: scheduler-service restart
+      run: sudo systemctl restart api-scheduler
+    - name: scheduler-service scheduler
+      run: sudo systemctl status api-scheduler
 

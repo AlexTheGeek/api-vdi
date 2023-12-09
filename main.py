@@ -602,9 +602,10 @@ if __name__ == '__main__':
         # Create default admin user
         if not User.query.filter_by(email="openstack@insa-cvl.fr").first():
             random_password = get_random_string(15)
-            print(random_password)
             hashed_password = PasswordHasher().hash(random_password) 
             new_user = User(id="1", email="openstack@insa-cvl.fr", first_name="openstack", last_name="openstack",
                             password=hashed_password, role="admin", cas=True)
+            db.session.add(new_user)
             db.session.commit()
+            print("Default admin user created with password: "+random_password)
     app.run(debug=True, host="0.0.0.0", port=5001)

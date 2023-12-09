@@ -19,17 +19,21 @@ def job():
 
 def synchronize_template_image():
     # Get image on the openstack
-    images_openstack = openstack.get_images(conn_openstack)
+    images_openstack = openstack.get_image(conn_openstack)
     # Get template from the database
+    print(images_openstack)
     db = mysql.connector.connect(**db_config)
     cursor = db.cursor()
     cursor.execute("SELECT name FROM template")
-    templates_db = cursor.fetchall()
+    templates_db1 = cursor.fetchall()
     # Compare the two lists
+    templates_db = []
+    for template in templates_db1:
+        templates_db.append(template[0])
     for image in images_openstack:
-        if image not in templates_db.name:
+        if image not in templates_db:
             # Insert the image in the database
-            cursor.execute("INSERT INTO template (id, name, creationDate, users_id) VALUES (%s, %s, %s, %s)", (str(uuid.uuid4()), image, datetime.datetime.utcnow, "1"))
+            cursor.execute("INSERT INTO template (id, name, users_id) VALUES (%s, %s, %s)", (str(uuid.uuid4()), str(image), "1"))
             db.commit()
 
 

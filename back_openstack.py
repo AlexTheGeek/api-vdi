@@ -27,7 +27,10 @@ def get_flavor(conn):
         print("Flavor name : " + flavor.name)
         
 def get_image(conn):
-    return conn.compute.images()
+    images = []
+    for image in conn.compute.images():
+        images.append(image.name)
+    return images
 
 def get_network(conn):
     print("--------------------")

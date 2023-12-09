@@ -197,7 +197,7 @@ def register():
         return jsonify({'message': 'Please provide all the required informations (email, password, first_name, last_name)'}), 400
     hashed_password = PasswordHasher().hash(data['password']) 
     new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
-                    password=hashed_password, role=data['role'])
+                    password=hashed_password, cas=False, role=data['role'])
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'message': 'User registered successfully'}), 201
@@ -213,7 +213,7 @@ def create_user():
     print(random_password)
     hashed_password = PasswordHasher().hash(random_password) 
     new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
-                    password=hashed_password, role="user", parent=current_user.id)
+                    password=hashed_password, role="user", cas=False, parent=current_user.id)
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'message': 'User created successfully', 'password': random_password}), 201
@@ -270,7 +270,7 @@ def logincas():
         user.first_name = user_attributes['user_id'] #user_attributes['givenName']
         user.last_name = user_attributes['user_id'] #user_attributes['sn']
         user.password = PasswordHasher().hash(user_attributes['user_id'])
-        user.role = "cas-user"
+        user.role = "user"
         # Check if user already exists
         user_db = User.query.filter_by(id=user.id).first()
         if user_db:
@@ -312,7 +312,7 @@ def login():
     
     user = User.query.filter_by(email=data['email']).first()
     
-    if user.email.find("@insa-cvl.fr") != -1 or user.role.find("cas") != -1:
+    if user.email.find("@insa-cvl.fr") != -1 or user.cas == True:
         return jsonify({'message': 'Please use CAS login'}), 403
     
     if user and PasswordHasher().verify(user.password, data['password']):
@@ -357,7 +357,9 @@ def profile():
         'first_name': current_user.first_name,
         'last_name': current_user.last_name,
         'email': current_user.email,
-        'role': current_user.role
+        'role': current_user.role,
+        'parent': current_user.parent,
+        'cas': current_user.cas
     })
 
 @app.route('/check-auth')
@@ -377,7 +379,7 @@ def get_users():
 @login_required
 @check_admin
 def get_roles():
-    roles = ["user", "prof", "admin", "cas-user", "cas-prof", "cas-admin"]
+    roles = ["user", "prof", "admin"]
     return jsonify(roles), 200
 
 @app.route('/myusers', methods=['GET'])

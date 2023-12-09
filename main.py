@@ -598,5 +598,10 @@ def get_template_info(uuid):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        # Create default admin user
+        if not User.query.filter_by(email="openstack@insa-cvl.fr").first():
+            hashed_password = PasswordHasher().hash("azerty") 
+            new_user = User(id="1", email="openstack@insa-cvl.fr", first_name="openstack", last_name="openstack",
+                            password=hashed_password, role="admin", cas=True)
         db.session.commit()
     app.run(debug=True, host="0.0.0.0", port=5001)

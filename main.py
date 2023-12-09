@@ -213,7 +213,7 @@ def create_user():
                     password=hashed_password, role="user")
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({'message': 'User created successfully', 'password': 'random_password'}), 201
+    return jsonify({'message': 'User created successfully', 'password': random_password}), 201
 
 @app.route('/updatepassword', methods=['POST'])
 @login_required

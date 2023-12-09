@@ -208,7 +208,7 @@ def create_user():
         return jsonify({'message': 'Please provide all the required informations (email, first_name, last_name)'}), 400
     random_password = get_random_string(15)
     print(random_password)
-    hashed_password = PasswordHasher().hash() 
+    hashed_password = PasswordHasher().hash(random_password) 
     new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
                     password=hashed_password, role="user")
     db.session.add(new_user)

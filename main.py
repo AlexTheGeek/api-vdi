@@ -240,8 +240,8 @@ def update_password():
 @check_admin
 def update_role():
     data = request.get_json()
-    if not data or not data['role'] or data['user_id']:
-        return jsonify({'message': 'Please provide a new and the user_id'}), 400
+    if not data or not data['role'] or not data['user_id']:
+        return jsonify({'message': 'Please provide a new role and the user_id'}), 400
     user = User.query.filter_by(id=data['user_id']).first()
     user.role = data['role']
     db.session.commit()

@@ -219,13 +219,21 @@ def create_user():
 @login_required
 def update_password():
     data = request.get_json()
-    if not data or not data['password']:
+    if data['user_id']:
+        user_id = data['user_id']
+    else:
+        user_id = current_user.id
+    if not data or not data['old_password'] or not data['new_password'] or not data['new_password2']:
         return jsonify({'message': 'Please provide a new password'}), 400
-    hashed_password = PasswordHasher().hash(data['password']) 
-    user = User.query.filter_by(id=current_user.id).first()
-    user.password = hashed_password
-    db.session.commit()
-    return jsonify({'message': 'Password updated successfully'}), 200
+    user = User.query.filter_by(id=user_id).first()
+    if PasswordHasher().verify(user.password, data['old_password']):
+        if data['new_password'] == data['new_password2']:
+            hashed_password = PasswordHasher().hash(data['new_password']) 
+            user.password = hashed_password
+            db.session.commit()
+            return jsonify({'message': 'Password updated successfully'}), 200
+        else:
+            return jsonify({'message': 'New passwords do not match'}), 400
 
 @app.route('/updaterole', methods=['POST'])
 @login_required

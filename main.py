@@ -52,6 +52,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20))
     #cas = db.Column(db.Boolean, default=True)
+    parent = db.Column(db.String(36))
     tokens = db.relationship('TokenUser', backref='user', lazy=True)
     vms = db.relationship('VM', backref='user', lazy=True)
     templates = db.relationship('Template', backref='user', lazy=True)

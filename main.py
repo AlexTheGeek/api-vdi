@@ -423,8 +423,11 @@ def create_vm():
         openstack.create_instance(conn_openstack, data['template_id']+"---"+current_user.id, template_name)
     except:
         return jsonify({'message': 'VM creation failed'}), 500
-    # url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
-    # new_vm.vncurl =  "https://vnc.insa-cvl.fr"+url_vnc.rsplit('0/vnc_auto.html?path=', 1)[-1]
+    # try:
+    #     url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
+    # except:
+    #     return jsonify({'message': 'ERROR URL'}), 500
+    # new_vm.vncurl = url_vnc.rsplit('0/vnc_auto.html?path=', 1)[-1]
     db.session.add(new_vm)
     db.session.commit()
     return jsonify({'message': 'VM created successfully'}), 201
@@ -469,7 +472,7 @@ def vm_status_id(uuid):
     
 @app.route('/vm/url/id/<uuid>', methods=['GET'])
 @login_required
-def vm_url_ir(uuid):
+def vm_url_id(uuid):
     if not uuid:
         return jsonify({'message': 'Please provide a VM ID'}), 400
     vm_name = VM.query.filter_by(id=uuid, users_id=current_user.id).first().name
@@ -478,11 +481,6 @@ def vm_url_ir(uuid):
             url_vnc = openstack.get_console_url(conn_openstack, vm_name)
         except:
             return jsonify({'message': 'ERROR URL'}), 500
-        # resp = requests.get(url_vnc, verify=False)
-        # excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        # headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
-        # response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers)
-        # return response
         url = url_vnc.rsplit('0/vnc_auto.html', 1)[-1]
         print(url)
         return jsonify({"url": "https://vnc.insa-cvl.com/"+url}), 200
@@ -502,11 +500,6 @@ def vm_url_template(template_id):
             url_vnc = openstack.get_console_url(conn_openstack, vm_name)
         except:
             return jsonify({'message': 'ERROR URL'}), 500
-        # resp = requests.get(url_vnc, verify=False, stream=True)
-        # excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        # headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
-        # response = Response(resp.iter_content(chunk_size=1024), resp.status_code, headers)
-        # return response
         print(url_vnc)
         url = url_vnc.rsplit('0/vnc_auto.html', 1)[-1]
         print(url)

@@ -27,7 +27,7 @@ from flask_migrate import Migrate
 ################
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key'
@@ -81,9 +81,9 @@ class VM(db.Model):
 # Template model
 class Template(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
-    name = db.Column(db.String(50))
+    name = db.Column(db.String(50), unique=True, nullable=False)
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
+    users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=True)
 
 
 #################

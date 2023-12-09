@@ -25,6 +25,9 @@ def get_infos(conn):
 def get_flavor(conn):
     for flavor in conn.compute.flavors():
         print("Flavor name : " + flavor.name)
+        
+def get_image(conn):
+    return conn.compute.images()
 
 def get_network(conn):
     print("--------------------")
@@ -120,7 +123,8 @@ def get_floating_IPs(conn):
 #######################################################
 def create_instance(conn, vm_name:str, vm_image:str):
     image = conn.compute.find_image(f"{vm_image}")
-    flavor = conn.compute.find_flavor(f"m1.{vm_image}")
+    flavor = conn.compute.find_flavor("vdi")
+    # flavor = conn.compute.find_flavor(f"m1.{vm_image}")
     # print(flavor)
     template_ram = flavor.ram
     template_vcpu = flavor.vcpus

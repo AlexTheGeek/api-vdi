@@ -256,7 +256,8 @@ def logincas():
     ticket_id = request.args.get('ticket')
     print(ticket_id)
     if ticket_id:
-        validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id+"&attributes=cn,eduPersonPrincipalName,givenName,mail,sn,uid"
+        validation_url = "https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id
+        # validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id+"&attributes=cn,eduPersonPrincipalName,givenName,mail,sn,uid"
         try:
             response = requests.get(validation_url)
         except:
@@ -343,7 +344,7 @@ def logout():
     TokenUser.query.filter_by(users_id=current_user.id).delete()
     user = User.query.filter_by(id=current_user.id).first()
     logout_user()
-    if user.role == "cas-user":
+    if user.cas:
         return jsonify({'message': 'Logout successful', 'cas': True}), 200
         # return redirect("https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com")
     return jsonify({'message': 'Logout successful', 'cas': False}), 200

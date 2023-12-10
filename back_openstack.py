@@ -126,7 +126,7 @@ def get_floating_IPs(conn):
 #######################################################
 def create_instance(conn, vm_name:str, vm_image:str):
     image = conn.compute.find_image(f"{vm_image}")
-    flavor = conn.compute.find_flavor("vdi2") #vdi = 25Go, vdi2 = 100Go
+    flavor = conn.compute.find_flavor("vdi") #vdi = 25Go, vdi2 = 100Go
     # flavor = conn.compute.find_flavor(f"m1.{vm_image}")
     # print(flavor)
     template_ram = flavor.ram

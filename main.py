@@ -74,7 +74,7 @@ class VM(db.Model):
     name = db.Column(db.String(100), unique=True)
     template_id = db.Column(db.String(36))
     users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
-    vncurl = db.Column(db.String(200))
+    # vncurl = db.Column(db.String(200))
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 

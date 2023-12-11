@@ -327,7 +327,8 @@ def login():
 
         # remove old token
         TokenUser.query.filter_by(users_id=user.id).delete()
-
+        db.session.commit()
+        
         # Store token in tokens_user table
         new_token = TokenUser(users_id=user.id, token=token)
 

@@ -250,6 +250,11 @@ def update_role():
     db.session.commit()
     return jsonify({'message': 'Role updated successfully'}), 200
 
+# @app.route('/deleteuser', methods=['DELETE'])
+# @login_required
+# @check_prof_admin
+# ### TODO
+
 
 @app.route('/logincas', methods=['GET', 'POST'])
 def logincas():
@@ -385,10 +390,10 @@ def get_roles():
 
 @app.route('/myusers', methods=['GET'])
 @login_required
-# @check_prof
+@check_prof
 def get_myusers():
     users = User.query.filter(User.query.filter_by(parent=current_user.id)).all()
-    return jsonify([{"id":user.id, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "role":user.role} for user in users]), 200
+    return jsonify([{"id":user.id, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "role":user.role, "cas": user.cas, "parent": user.parent} for user in users]), 200
 
 ##################
 ### VMs Routes ###

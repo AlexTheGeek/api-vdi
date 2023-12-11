@@ -95,24 +95,25 @@ def load_user(user_id):
 
 
 # Token Serializer
-def generate_token(user):
-    serializer = URLSafeTimedSerializer(app.config['TOKEN_SECRET_KEY'])
-    return serializer.dumps({'user_id': user.id})
+# def generate_token(user):
+#     serializer = URLSafeTimedSerializer(app.config['TOKEN_SECRET_KEY'])
+#     return serializer.dumps({'user_id': user.id})
 
 
 # Middleware for token-based authentication
-#@app.before_request
-def check_token():
-    # if request.endpoint not in ['login', 'register', 'check_auth'] and not current_user.is_authenticated:
-    token = request.headers.get('Authorization')
-    if not token:
-        return jsonify({'message': 'Token is missing'}), 401
 
-    user = User.query.join(TokenUser).filter(TokenUser.token == token).first()
-    if user:
-        login_user(user)
-    else:
-        return jsonify({'message': 'Invalid token'}), 401
+#@app.before_request
+# def check_token():
+#     # if request.endpoint not in ['login', 'register', 'check_auth'] and not current_user.is_authenticated:
+#     token = request.headers.get('Authorization')
+#     if not token:
+#         return jsonify({'message': 'Token is missing'}), 401
+
+#     user = User.query.join(TokenUser).filter(TokenUser.token == token).first()
+#     if user:
+#         login_user(user)
+#     else:
+#         return jsonify({'message': 'Invalid token'}), 401
 
 def extract_user_info(xml_response):
     user_info = {}
@@ -277,7 +278,7 @@ def logincas():
         user.last_name = user_attributes['user_id'] #user_attributes['sn']
         user.password = PasswordHasher().hash(user_attributes['user_id'])
         user.role = "user"
-        # Check if user already exists
+
         user_db = User.query.filter_by(id=user.id).first()
         if user_db:
             user = user_db
@@ -286,19 +287,20 @@ def logincas():
             db.session.commit()
                 
         login_user(user)
-        token = generate_token(user)
+        # token = generate_token(user)
 
-        # remove old token
-        TokenUser.query.filter_by(users_id=user.id).delete()
+        # # remove old token
+        # TokenUser.query.filter_by(users_id=user.id).delete()
 
-        # Store token in tokens_user table
-        new_token = TokenUser(users_id=user.id, token=token)
+        # # Store token in tokens_user table
+        # new_token = TokenUser(users_id=user.id, token=token)
 
-        db.session.add(new_token)
-        db.session.commit()
+        # db.session.add(new_token)
+        # db.session.commit()
 
-        custom_headers = {'Authorization': token}
-        return render_template('login_redirect', custom_headers=custom_headers)
+        # custom_headers = {'Authorization': token}
+        return redirect("https://vdi.insa-cvl.com/dashboard")
+        # return render_template('login_redirect', custom_headers=custom_headers)
 
         # response = jsonify({'message': 'Login successful'})
         # response.headers['Authorization'] = token
@@ -323,22 +325,22 @@ def login():
     
     if user and PasswordHasher().verify(user.password, data['password']):
         login_user(user)
-        token = generate_token(user)
+        # token = generate_token(user)
 
-        # remove old token
-        TokenUser.query.filter_by(users_id=user.id).delete()
-        db.session.commit()
+        # # remove old token
+        # TokenUser.query.filter_by(users_id=user.id).delete()
+        # db.session.commit()
         
-        # Store token in tokens_user table
-        new_token = TokenUser(users_id=user.id, token=token)
+        # # Store token in tokens_user table
+        # new_token = TokenUser(users_id=user.id, token=token)
 
-        db.session.add(new_token)
-        db.session.commit()
+        # db.session.add(new_token)
+        # db.session.commit()
 
-        response = jsonify({'message': 'Login successful'})
-        response.headers['Authorization'] = token
-        print(response.headers)
-        return response, 200
+        # response = jsonify({'message': 'Login successful'})
+        # response.headers['Authorization'] = token
+        # print(response.headers)
+        return jsonify({'message': 'Login successful'}), 200
     else:
         return jsonify({'message': 'Invalid email or password'}), 401
 
@@ -347,7 +349,8 @@ def login():
 @login_required
 def logout():
     # remove token
-    TokenUser.query.filter_by(users_id=current_user.id).delete()
+    # TokenUser.query.filter_by(users_id=current_user.id).delete()
+    # db.session.commit()
     user = User.query.filter_by(id=current_user.id).first()
     logout_user()
     if user.cas:

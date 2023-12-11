@@ -55,12 +55,12 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20))
     cas = db.Column(db.Boolean, default=True)
     parent = db.Column(db.String(36))
-    tokens = db.relationship('TokenUser', backref='user', lazy=True)
+    tokens = db.relationship('TokenUser', backref='user', lazy=True) # A supprimer
     vms = db.relationship('VM', backref='user', lazy=True)
     templates = db.relationship('Template', backref='user', lazy=True)
 
 
-# TokenUser model
+# TokenUser model (A supprimer)
 class TokenUser(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
@@ -74,7 +74,7 @@ class VM(db.Model):
     name = db.Column(db.String(100), unique=True)
     template_id = db.Column(db.String(36))
     users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
-    # vncurl = db.Column(db.String(200))
+    vncurl = db.Column(db.String(200))
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 

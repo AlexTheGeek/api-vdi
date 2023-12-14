@@ -48,9 +48,10 @@ logger = logging.getLogger("API-VDI")
 logging.basicConfig(level = logging.INFO)
 
 # Create handlers
-if not os.path.exists('./log'):
-    os.makedirs('./log')
-f_handler = logging.FileHandler('./log/api.log')
+if not os.path.exists('/var/log/VDI/API'):
+    os.makedirs('/var/log/VDI/API')
+    os.system("chown -R alex:alex /var/log/VDI")
+f_handler = logging.FileHandler('/var/log/VDI/API/api-flask.log')
 f_handler.setLevel(logging.INFO)
 
 # Create formatters and add it to handlers

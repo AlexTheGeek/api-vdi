@@ -1,0 +1,9 @@
+# API VDI
+
+## Log
+Créer un dossier /var/log/VDI/API pour les logs de l'API.
+attribution des droits de l'utilisateur qui exécute notre python sur ce dossier (ici vdi)
+```bash
+chown -R vdi:vdi /var/log/VDI/API
+```
+

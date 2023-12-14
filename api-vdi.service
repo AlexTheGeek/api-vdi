@@ -7,7 +7,7 @@ User=alex
 Group=alex
 WorkingDirectory=/home/alex/VDI-API-INSA
 Environment="PATH=/home/alex/.local/bin"
-ExecStart=/home/alex/.local/bin/gunicorn --workers 3 --bind 0.0.0.0:5001 wsgi:app
+ExecStart=/home/alex/.local/bin/gunicorn --access-logfile /var/log/VDI/API/access.log --error-logfile /var/log/VDI/API/error.log --workers 3 --bind 0.0.0.0:5001 wsgi:app
 
 [Install]
 WantedBy=multi-user.target

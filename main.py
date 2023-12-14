@@ -239,16 +239,16 @@ def register():
 def create_user():
     data = request.get_json()
     if not data or not data['email'] or not data['first_name'] or not data['last_name']:
-        logger.warning("User creation failed: "+data['email']+ " by "+current_user.email)
+        logger.warning("Data Missing: Create_user by "+current_user.email)
         return jsonify({'message': 'Please provide all the required informations (email, first_name, last_name)'}), 400
     random_password = get_random_string(15)
-    print(random_password)
+    # print(random_password)
     hashed_password = PasswordHasher().hash(random_password) 
     new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
                     password=hashed_password, role="user", cas=False, parent=current_user.id)
     db.session.add(new_user)
     db.session.commit()
-    logger.info("User created: "+data['email']+ " by "+current_user.email)
+    logger.info("User created: "+data['email']+ " by "+current_user.email+" with password: "+random_password)
     return jsonify({'message': 'User created successfully', 'password': random_password}), 201
 
 @app.route('/updatepassword', methods=['POST'])
@@ -260,6 +260,7 @@ def update_password():
     else:
         user_id = current_user.id
     if not data or not data['old_password'] or not data['new_password'] or not data['new_password2']:
+        logger.warning("Password update failed: Missing Data "+user_id+ " by "+current_user.email)
         return jsonify({'message': 'Please provide a new password'}), 400
     user = User.query.filter_by(id=user_id).first()
     if PasswordHasher().verify(user.password, data['old_password']):
@@ -279,7 +280,7 @@ def update_password():
 def update_role():
     data = request.get_json()
     if not data or not data['role'] or not data['user_id']:
-        logger.warning("Role update failed: "+data['user_id']+ " by "+current_user.email)
+        logger.warning("Role update failed: Missing Data by "+current_user.email)
         return jsonify({'message': 'Please provide a new role and the user_id'}), 400
     user = User.query.filter_by(id=data['user_id']).first()
     user.role = data['role']
@@ -296,7 +297,7 @@ def update_role():
 @app.route('/logincas', methods=['GET', 'POST'])
 def logincas():
     ticket_id = request.args.get('ticket')
-    print(ticket_id)
+    # print(ticket_id)
     if ticket_id:
         validation_url = "https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id
         # validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id+"&attributes=cn,eduPersonPrincipalName,givenName,mail,sn,uid"
@@ -304,9 +305,9 @@ def logincas():
             response = requests.get(validation_url)
         except:
             return jsonify({'message': 'Ticket validation failed'}), 500
-        print(response.text)
+        # print(response.text)
         user_attributes = extract_user_info(response.text)
-        print(user_attributes['user_id'])
+        # print(user_attributes['user_id'])
         user = User()
         user.id = user_attributes['user_id']
         user.email = user_attributes['user_id']+"@insa-cvl.fr" #user_attributes['mail']
@@ -335,7 +336,7 @@ def logincas():
         # db.session.commit()
 
         # custom_headers = {'Authorization': token}
-        logger.info("Login successful: "+user_attributes['user_id'])
+        logger.info("Login successful: "+user_attributes['user_id']+" with CAS "+user.email)
         return redirect("https://vdi.insa-cvl.com/dashboard")
         # return render_template('login_redirect', custom_headers=custom_headers)
 
@@ -345,7 +346,7 @@ def logincas():
         # return response, 200
         # return redirect("https://vdi.insa-cvl.com/student")       
         # return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url, "user_id": user_attributes['user_id']}), 200
-    logger.warning("Login failed: "+user_attributes['user_id'])
+    logger.warning("Login failed: "+user_attributes['user_id']+" with CAS ")
     return jsonify({'message': 'Ticket is missing'}), 404
 
 
@@ -354,7 +355,7 @@ def login():
     data = request.get_json()
     
     if not data or not data['email'] or not data['password']:
-        logger.warning("Login failed: "+data['email'])
+        logger.warning("Login failed: Missing Data")
         return jsonify({'message': 'Please provide email and password'}), 400
     
     user = User.query.filter_by(email=data['email']).first()
@@ -396,10 +397,10 @@ def logout():
     user = User.query.filter_by(id=current_user.id).first()
     logout_user()
     if user.cas:
-        logger.info("User logout: "+user.email+" with CAS")
+        logger.info("User logout: "+user.id+", "+user.email+" with CAS")
         return jsonify({'message': 'Logout successful', 'cas': True}), 200
         # return redirect("https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com")
-    logger.info("User logout: "+user.email)
+    logger.info("User logout: "+user.id+", "+user.email)
     return jsonify({'message': 'Logout successful', 'cas': False}), 200
 
 
@@ -456,6 +457,7 @@ def get_myusers():
 @check_admin
 def get_vms():
     vms = VM.query.all()
+    logger.info("VMs list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vms]), 200
 
 @app.route('/myvmsusers', methods=['GET'])
@@ -464,6 +466,7 @@ def get_vms():
 def get_myvmsusers():
     # à changer
     vm = VM.query.filter(VM.users_id.like("%"+current_user.id)).all()
+    logger.info("My VMs list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vm]), 200
 
 @app.route('/vm/create', methods=['POST'])
@@ -471,16 +474,20 @@ def get_myvmsusers():
 def create_vm():
     data = request.get_json()
     if not data or not data['template_id']:
+        logger.warning("VM creation failed: "+current_user.email)
         return jsonify({'message': 'Please provide a template ID'}), 400
     
     if VM.query.filter_by(template_id=data['template_id'], users_id=current_user.id).all():
+        logger.critical("VM creation failed: VM already exists - "+current_user.email)
         return jsonify({'message': 'VM already exists'}), 409
     
     new_vm = VM(id=str(uuid.uuid4()), name=data['template_id']+"---"+current_user.id, template_id=data['template_id'], users_id=current_user.id)
     template_name = Template.query.filter_by(id=data['template_id']).first().name
     try:
         openstack.create_instance(conn_openstack, data['template_id']+"---"+current_user.id, template_name)
+        logger.info("VM created: "+data['template_id']+"---"+current_user.email+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
     except:
+        logger.warning("VM creation failed: "+data['template_id']+"---"+current_user.email+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
         return jsonify({'message': 'VM creation failed'}), 500
     # try:
     #     url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
@@ -489,6 +496,7 @@ def create_vm():
     # new_vm.vncurl = url_vnc.rsplit('0/vnc_auto.html?path=', 1)[-1]
     db.session.add(new_vm)
     db.session.commit()
+    logger.info("VM created: "+data['template_id']+"---"+current_user.email+" from template: "+template_name+" by "+current_user.email)
     return jsonify({'message': 'VM created successfully'}), 201
 
 
@@ -503,9 +511,9 @@ def vm_status_template(template_id):
         return jsonify({'message': 'DB ERROR'}), 500
     if vm:
         try:
-            print(vm.name)
+            # print(vm.name)
             vm_state, status = openstack.get_status_server(conn_openstack, vm.name)
-            print(vm_state)
+            # print(vm_state)
         except:
             return jsonify({'message': 'VM STATUS FAILLED'}), 500
         return jsonify({"status": status, "vm_state": vm_state}), 200
@@ -541,7 +549,7 @@ def vm_url_id(uuid):
         except:
             return jsonify({'message': 'ERROR URL'}), 500
         url = url_vnc.rsplit('0/vnc_auto.html', 1)[-1]
-        print(url)
+        # print(url)
         return jsonify({"url": "https://vnc.insa-cvl.com/"+url}), 200
     else:
         return jsonify({'message': 'VM not found'}), 404
@@ -559,9 +567,9 @@ def vm_url_template(template_id):
             url_vnc = openstack.get_console_url(conn_openstack, vm_name)
         except:
             return jsonify({'message': 'ERROR URL'}), 500
-        print(url_vnc)
+        # print(url_vnc)
         url = url_vnc.rsplit('0/vnc_auto.html', 1)[-1]
-        print(url)
+        # print(url)
         return jsonify({"url": "https://vnc.insa-cvl.com/"+url}), 200
     else:
         return jsonify({'message': 'Template not found'}), 404

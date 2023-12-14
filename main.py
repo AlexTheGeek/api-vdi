@@ -1,7 +1,7 @@
 ##################
 ### Librairies ###
 ##################
-from flask import Flask, request, jsonify, Response, redirect, render_template, abort, session
+from flask import Flask, request, jsonify, Response, redirect, render_template, abort, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -24,7 +24,7 @@ import os
 ################
 ### Vars APP ###
 ################
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 CORS(app, supports_credentials=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -208,6 +208,10 @@ def check_prof_admin(func):
 ##############
 ### Routes ###
 ##############
+@app.route('/robots.txt')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
+
 @app.route('/', methods=['GET'])
 def welcome():
     logger.info("Welcome access")

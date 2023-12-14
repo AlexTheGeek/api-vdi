@@ -18,9 +18,8 @@ import random
 import string
 from functools import wraps
 from flask_migrate import Migrate
-
-
-
+import logging
+import os
 
 ################
 ### Vars APP ###
@@ -39,6 +38,32 @@ login_manager = LoginManager(app)
 #login_manager.login_view = 'login'
 
 conn_openstack = openstack.conn
+
+
+##################
+### Log config ###
+##################
+# Create a custom logger
+logger = logging.getLogger(__name__)
+
+# Create handlers
+if not os.path.exists('./log'):
+    os.makedirs('./log')
+f_handler = logging.FileHandler('./log/api.log')
+f_handler.setLevel(logging.DEBUG)
+
+# Create formatters and add it to handlers
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+f_handler.setFormatter(f_format)
+
+# Add handlers to the logger
+logger.addHandler(f_handler)
+# logger.debug('This is a debug message')
+# logger.info('This is an info message')
+# logger.warning('This is a warning message')
+# logger.error('This is an error message')
+# logger.critical('This is a critical message')
+
 
 
 ##########
@@ -183,6 +208,7 @@ def check_prof_admin(func):
 ##############
 @app.route('/', methods=['GET'])
 def welcome():
+    logger.info("Welcome access")
     return jsonify({'message': 'Hello and welcome to the VDI API!'})
 
 
@@ -195,12 +221,14 @@ def welcome():
 def register():
     data = request.get_json()
     if not data or not data['email'] or not data['password'] or not data['first_name'] or not data['last_name'] or not data['role']:
+        logger.warning("User creation failed: "+data['email'])
         return jsonify({'message': 'Please provide all the required informations (email, password, first_name, last_name)'}), 400
     hashed_password = PasswordHasher().hash(data['password']) 
     new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
                     password=hashed_password, cas=False, role=data['role'])
     db.session.add(new_user)
     db.session.commit()
+    logger.info("User created: "+data['email'])
     return jsonify({'message': 'User registered successfully'}), 201
 
 @app.route('/createuser', methods=['POST'])
@@ -209,6 +237,7 @@ def register():
 def create_user():
     data = request.get_json()
     if not data or not data['email'] or not data['first_name'] or not data['last_name']:
+        logger.warning("User creation failed: "+data['email']+ " by "+current_user.email)
         return jsonify({'message': 'Please provide all the required informations (email, first_name, last_name)'}), 400
     random_password = get_random_string(15)
     print(random_password)
@@ -217,6 +246,7 @@ def create_user():
                     password=hashed_password, role="user", cas=False, parent=current_user.id)
     db.session.add(new_user)
     db.session.commit()
+    logger.info("User created: "+data['email']+ " by "+current_user.email)
     return jsonify({'message': 'User created successfully', 'password': random_password}), 201
 
 @app.route('/updatepassword', methods=['POST'])
@@ -235,8 +265,10 @@ def update_password():
             hashed_password = PasswordHasher().hash(data['new_password']) 
             user.password = hashed_password
             db.session.commit()
+            logger.info("Password updated: "+user.email+ " by "+current_user.email)
             return jsonify({'message': 'Password updated successfully'}), 200
         else:
+            logger.warning("Password update failed: "+user.email+ " by "+current_user.email)
             return jsonify({'message': 'New passwords do not match'}), 400
 
 @app.route('/updaterole', methods=['POST'])
@@ -245,10 +277,12 @@ def update_password():
 def update_role():
     data = request.get_json()
     if not data or not data['role'] or not data['user_id']:
+        logger.warning("Role update failed: "+data['user_id']+ " by "+current_user.email)
         return jsonify({'message': 'Please provide a new role and the user_id'}), 400
     user = User.query.filter_by(id=data['user_id']).first()
     user.role = data['role']
     db.session.commit()
+    logger.info("Role updated: "+data['user_id']+ " by "+current_user.email)
     return jsonify({'message': 'Role updated successfully'}), 200
 
 # @app.route('/deleteuser', methods=['DELETE'])
@@ -299,6 +333,7 @@ def logincas():
         # db.session.commit()
 
         # custom_headers = {'Authorization': token}
+        logger.info("Login successful: "+user_attributes['user_id'])
         return redirect("https://vdi.insa-cvl.com/dashboard")
         # return render_template('login_redirect', custom_headers=custom_headers)
 
@@ -308,6 +343,7 @@ def logincas():
         # return response, 200
         # return redirect("https://vdi.insa-cvl.com/student")       
         # return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url, "user_id": user_attributes['user_id']}), 200
+    logger.warning("Login failed: "+user_attributes['user_id'])
     return jsonify({'message': 'Ticket is missing'}), 404
 
 
@@ -316,11 +352,13 @@ def login():
     data = request.get_json()
     
     if not data or not data['email'] or not data['password']:
+        logger.warning("Login failed: "+data['email'])
         return jsonify({'message': 'Please provide email and password'}), 400
     
     user = User.query.filter_by(email=data['email']).first()
     
     if user.email.find("@insa-cvl.fr") != -1 or user.cas == True:
+        logger.warning("Login failed: "+data['email'] + " without CAS")
         return jsonify({'message': 'Please use CAS login'}), 403
     
     if user and PasswordHasher().verify(user.password, data['password']):
@@ -340,8 +378,10 @@ def login():
         # response = jsonify({'message': 'Login successful'})
         # response.headers['Authorization'] = token
         # print(response.headers)
+        logger.info("Login successful: "+data['email'])
         return jsonify({'message': 'Login successful'}), 200
     else:
+        logger.warning("Login failed: "+data['email'])
         return jsonify({'message': 'Invalid email or password'}), 401
 
 
@@ -354,14 +394,17 @@ def logout():
     user = User.query.filter_by(id=current_user.id).first()
     logout_user()
     if user.cas:
+        logger.info("User logout: "+user.email+" with CAS")
         return jsonify({'message': 'Logout successful', 'cas': True}), 200
         # return redirect("https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com")
+    logger.info("User logout: "+user.email)
     return jsonify({'message': 'Logout successful', 'cas': False}), 200
 
 
 @app.route('/profile')
 @login_required
 def profile():
+    logger.info("Profile access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify({
         'id': current_user.id,
         'first_name': current_user.first_name,
@@ -375,6 +418,7 @@ def profile():
 @app.route('/check-auth')
 @login_required
 def check_auth():
+    logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify({'message': 'Authentication check successful'})
 
 
@@ -383,6 +427,7 @@ def check_auth():
 @check_admin
 def get_users():
     users = User.query.all()
+    logger.info("Users list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify([{"id":user.id, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "role":user.role} for user in users]), 200
 
 @app.route('/roles', methods=['GET'])
@@ -390,6 +435,7 @@ def get_users():
 @check_admin
 def get_roles():
     roles = ["user", "prof", "admin"]
+    logger.info("Roles list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify(roles), 200
 
 @app.route('/myusers', methods=['GET'])
@@ -397,6 +443,7 @@ def get_roles():
 @check_prof
 def get_myusers():
     users = User.query.filter(User.query.filter_by(parent=current_user.id)).all()
+    logger.info("My Users list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify([{"id":user.id, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "role":user.role, "cas": user.cas, "parent": user.parent} for user in users]), 200
 
 ##################
@@ -599,16 +646,21 @@ def get_template_info(uuid):
 
 
 if __name__ == '__main__':
+    logger.info('Starting API')
     with app.app_context():
+        logger.info('Creating DB')
         db.create_all()
         db.session.commit()
         # Create default admin user
         if not User.query.filter_by(email="openstack@insa-cvl.fr").first():
+            logger.info('Creating default admin user')
             random_password = get_random_string(15)
             hashed_password = PasswordHasher().hash(random_password) 
             new_user = User(id="1", email="openstack@insa-cvl.fr", first_name="openstack", last_name="openstack",
                             password=hashed_password, role="admin", cas=True)
             db.session.add(new_user)
             db.session.commit()
-            print("Default admin user created with password: "+random_password)
+            logger.info("Default admin user created with password: "+random_password)
+            # print("Default admin user created with password: "+random_password)
+    logger.info('API started')
     app.run(debug=True, host="0.0.0.0", port=5001)

@@ -44,13 +44,14 @@ conn_openstack = openstack.conn
 ### Log config ###
 ##################
 # Create a custom logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("API-VDI")
+logging.basicConfig(level = logging.INFO)
 
 # Create handlers
 if not os.path.exists('./log'):
     os.makedirs('./log')
 f_handler = logging.FileHandler('./log/api.log')
-f_handler.setLevel(logging.DEBUG)
+f_handler.setLevel(logging.INFO)
 
 # Create formatters and add it to handlers
 f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')

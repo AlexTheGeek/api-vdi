@@ -608,7 +608,7 @@ def delete_vm():
 @check_admin
 def delete_vm_admin():
     data = request.get_json()
-    vm_id = data.get('id')
+    vm_id = data.get('vm_id')
     if not vm_id:
         logger.warning("VM DELETE ADMIN: Plesae provide a VM ID"+current_user.id)
         return jsonify({'message': 'Please provide a VM ID'}), 400

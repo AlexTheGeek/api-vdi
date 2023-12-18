@@ -604,7 +604,7 @@ def delete_vm():
 
 
 @app.route('/vm/delete_admin', methods=['DELETE'])
-@load_user
+@login_required
 @check_admin
 def delete_vm_admin():
     data = request.get_json()

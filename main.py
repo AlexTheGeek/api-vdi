@@ -603,6 +603,35 @@ def delete_vm():
         return jsonify({'message': 'VM ID is required'}), 400
 
 
+@app.route('/vm/delete_admin', methods=['DELETE'])
+@load_user
+@check_admin
+def delete_vm_admin():
+    data = request.get_json()
+    vm_id = data.get('id')
+    if not vm_id:
+        logger.warning("VM DELETE ADMIN: Plesae provide a VM ID"+current_user.id)
+        return jsonify({'message': 'Please provide a VM ID'}), 400
+    if vm_id:
+        vm = VM.query.filter_by(id=vm_id).first()
+        if vm:
+            try:
+                server = conn_openstack.compute.find_server(vm.name)
+                conn_openstack.compute.delete_server(server)
+            except:
+                logger.warning("VM DELETE ADMIN: VM DELETION FAILED"+current_user.id)
+                return jsonify({'message': 'VM deletion failed'}), 500
+            db.session.delete(vm)
+            db.session.commit()
+            logger.info("VM ID: "+vm.id+" user_id: "+vm.user_id+" by "+current_user.id)
+            return jsonify({'message': 'VM deleted successfully'}), 200
+        else:
+            logger.warning("VM DELETE ADMIN: VM not found or unauthorized")
+            return jsonify({'message': 'VM not found or unauthorized'}), 404
+    else:
+        logger.warning("VM ID required")
+        return jsonify({'message': 'VM ID is required'}), 400
+
 #######################
 ### Template Routes ###
 #######################

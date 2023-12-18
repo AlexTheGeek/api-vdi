@@ -623,7 +623,7 @@ def delete_vm_admin():
                 return jsonify({'message': 'VM deletion failed'}), 500
             db.session.delete(vm)
             db.session.commit()
-            logger.info("VM ID: "+vm.id+" user_id: "+vm.user_id+" by "+current_user.id)
+            logger.info("VM ID: "+vm.id+" user_id: "+vm.users_id+" by "+current_user.id)
             return jsonify({'message': 'VM deleted successfully'}), 200
         else:
             logger.warning("VM DELETE ADMIN: VM not found or unauthorized")

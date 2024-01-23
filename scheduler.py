@@ -44,15 +44,33 @@ def synchronize_template_image():
             
     db.close()
 
+def shutdown_vm():
+    db = mysql.connector.connect(**db_config)
+    cursor = db.cursor()
+    cursor.execute("SELECT id, name FROM vm")
+    vms_db = cursor.fetchall()
+    for vm in vms_db:
+        vm_state, status = openstack.get_status_server(conn_openstack, vm[1])
+        if vm_state != 1:
+            # Suppression de la VMs sur l'openstack
+            server = conn_openstack.compute.find_server(vm[1])
+            conn_openstack.compute.delete_server(server)
             
-    
-    
-    
+            # Suppression de la VMs dans la base de données
+            cursor.execute("DELETE FROM vm WHERE id = %s", (vm[0], ))
+            db.commit()
+    db.close()
+
+
+# def check_active_vm():
+#     ## to do
     
 
 # Schedule the job to run every 1 minute
 schedule.every(1).minutes.do(job)
 schedule.every(1).minutes.do(synchronize_template_image)
+schedule.every(2).minutes.do(shutdown_vm)
+# schedule.every(15).minutes.do(check_active_vm)
 
 while True:
     schedule.run_pending()

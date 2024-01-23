@@ -103,6 +103,7 @@ class VM(db.Model):
     users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     # vncurl = db.Column(db.String(200))
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    # activeDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
 # Template model
@@ -603,6 +604,23 @@ def delete_vm():
         return jsonify({'message': 'VM ID is required'}), 400
 
 
+@app.route('/vm/active/<uuid>', methods=['GET'])
+@login_required
+def user_active_vm(uuid):
+    # Update the database VMs activeDate with the current date
+    if not uuid:
+        return jsonify({'message': 'Please provide a VM ID'}), 400
+    vm = VM.query.filter_by(id=uuid, users_id=current_user.id).first()
+    if vm:
+        vm.activeDate = datetime.datetime.utcnow()
+        db.session.commit()
+        return jsonify({'message': 'VM active date updated successfully'}), 200
+    else:
+        return jsonify({'message': 'VM not found or unauthorized'}), 404
+    
+    
+
+
 @app.route('/vm/delete_admin', methods=['DELETE'])
 @login_required
 @check_admin
@@ -631,6 +649,7 @@ def delete_vm_admin():
     else:
         logger.warning("VM ID required")
         return jsonify({'message': 'VM ID is required'}), 400
+
 
 #######################
 ### Template Routes ###

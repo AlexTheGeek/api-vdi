@@ -1,3 +1,6 @@
+##################
+### Librairies ###
+##################
 from main import app, db, User, get_random_string
 from argon2 import PasswordHasher
 import logging
@@ -23,13 +26,10 @@ f_handler.setFormatter(f_format)
 
 # Add handlers to the logger
 logger.addHandler(f_handler)
-# logger.debug('This is a debug message')
-# logger.info('This is an info message')
-# logger.warning('This is a warning message')
-# logger.error('This is an error message')
-# logger.critical('This is a critical message')
 
-
+############
+### Main ###
+############
 if __name__ == "__main__":
     logger.info('Starting API')
     with app.app_context():
@@ -38,6 +38,7 @@ if __name__ == "__main__":
         db.session.commit()
         # Create openstack user
         if not User.query.filter_by(email="openstack@insa-cvl.fr").first():
+            logger.info('Creating openstack user')
             random_password = get_random_string(15)
             hashed_password = PasswordHasher().hash(random_password) 
             new_user = User(id="1", email="openstack@insa-cvl.fr", first_name="openstack", last_name="openstack",

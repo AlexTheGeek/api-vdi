@@ -24,19 +24,20 @@ import os
 ################
 ### Vars APP ###
 ################
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder='static') # Adding static folder for robots.txt
 CORS(app, supports_credentials=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi3'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi3' # Change these credentials to your own database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key'
-app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com'
+app.config['SECRET_KEY'] = 'your_secret_key' # Change this to your own secret key
+app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key' # Change this to your own secret key
+app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com' # Change to your domain to set the cookie for all subdomains
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 #login_manager.login_view = 'login'
 
+# Openstack API Connection
 conn_openstack = openstack.conn
 
 
@@ -60,12 +61,6 @@ f_handler.setFormatter(f_format)
 
 # Add handlers to the logger
 logger.addHandler(f_handler)
-# logger.debug('This is a debug message')
-# logger.info('This is an info message')
-# logger.warning('This is a warning message')
-# logger.error('This is an error message')
-# logger.critical('This is a critical message')
-
 
 
 ##########
@@ -706,7 +701,9 @@ def get_template_info(uuid):
         return jsonify({'message': 'Template ID is required'}), 400
 
 
-
+############
+### Main ###
+############
 if __name__ == '__main__':
     logger.info('Starting API')
     with app.app_context():

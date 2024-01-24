@@ -8,4 +8,4 @@ Restart=always
 User=alex
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

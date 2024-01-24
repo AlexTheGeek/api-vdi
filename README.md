@@ -14,14 +14,14 @@ This API can manage the following elements :
 2. Python 
 3. Pip or Pipx : you can even create a virtual environment to run those scripts
 4. Create a user vdi with the home directory `/home/vdi`
-5. Create a folder `/home/vdi/VDI` for the API and and clone this repository in it
-5.1. `mkdir -p /home/vdi/VDI-API`
-5.2. `cd /home/vdi/VDI-API`
-5.3. `git clone https://github.com/AlextTheGeek/api-vdi.git`
+5. Create a folder `/home/vdi/VDI` for the API and and clone this repository in it  
+    5.1. `mkdir -p /home/vdi/VDI-API`  
+    5.2. `cd /home/vdi/VDI-API`  
+    5.3. `git clone https://github.com/AlextTheGeek/api-vdi.git`  
 6. Install the requirements : `pip install -r requirements.txt`
-7. Create a folder /var/log/VDI/API for the logs of the API : `mkdir -p /var/log/VDI/API`
-7.1. Set the rights of the user who runs the API (here vdi) on this folder : `chown -R vdi:vdi /var/log/VDI/API`
-8. Create a folder /var/log/VDI/Scheduler for the logs of the scheduler : `mkdir -p /var/log/VDI/Scheduler`
+7. Create a folder /var/log/VDI/API for the logs of the API : `mkdir -p /var/log/VDI/API`  
+    7.1. Set the rights of the user who runs the API (here vdi) on this folder : `chown -R vdi:vdi /var/log/VDI/API`  
+8. Create a folder /var/log/VDI/Scheduler for the logs of the scheduler : `mkdir -p /var/log/VDI/Scheduler`  
 
 
 ### API

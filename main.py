@@ -280,7 +280,7 @@ def update_password():
 @app.route('/updatepasswordpa', methods=['POST'])
 @check_prof_admin
 @login_required
-def update_password():
+def update_password_pa():
     data = request.get_json()
     if data['user_id']:
         user_id = data['user_id']

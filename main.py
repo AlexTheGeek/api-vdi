@@ -487,7 +487,13 @@ def get_myusers():
 def get_vms():
     vms = VM.query.all()
     logger.info("VMs list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
-    return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vms]), 200
+    tabvminfos = []
+    for vm in vms:
+        user = User.query.filter_by(id=vm.users_id).first()
+        template = Template.query.filter_by(id=vm.template_id)
+        tabvminfos.append({"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate, "first_name": user.first_name, "last_name": user.last_name, "template_name": template.name})
+    return jsonify(tabvminfos), 200
+    #return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vms]), 200
 
 @app.route('/myvmsusers', methods=['GET'])
 @login_required

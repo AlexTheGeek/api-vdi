@@ -263,6 +263,9 @@ def update_password():
         logger.warning("Password update failed: Missing Data "+user_id+ " by "+current_user.email)
         return jsonify({'message': 'Please provide a new password'}), 400
     user = User.query.filter_by(id=user_id).first()
+    if user.cas == True:
+        logger.warning("Cant change password of CAS User")
+        return jsonify({'message': 'Cant change password of CAS User'}), 401
     if PasswordHasher().verify(user.password, data['old_password']):
         if data['new_password'] == data['new_password2']:
             hashed_password = PasswordHasher().hash(data['new_password']) 
@@ -287,6 +290,9 @@ def update_password():
         logger.warning("Password update failed: Missing Data "+user_id+ " by "+current_user.email)
         return jsonify({'message': 'Please provide a new password'}), 400
     user = User.query.filter_by(id=user_id).first()
+    if user.cas == True:
+        logger.warning("Cant change password of CAS User")
+        return jsonify({'message': 'Cant change password of CAS User'}), 401
     if data['new_password'] == data['new_password2']:
         hashed_password = PasswordHasher().hash(data['new_password']) 
         user.password = hashed_password

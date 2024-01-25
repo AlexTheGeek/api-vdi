@@ -490,7 +490,7 @@ def get_vms():
     tabvminfos = []
     for vm in vms:
         user = User.query.filter_by(id=vm.users_id).first()
-        template = Template.query.filter_by(id=vm.template_id)
+        template = Template.query.filter_by(id=vm.template_id).first()
         tabvminfos.append({"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate, "first_name": user.first_name, "last_name": user.last_name, "template_name": template.name})
     return jsonify(tabvminfos), 200
     #return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vms]), 200

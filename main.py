@@ -522,7 +522,7 @@ def get_myvmsusers():
     users = User.query.filter_by(parent=current_user.id).all()
     tabvminfos = []
     for user in users:
-        vms = VM.query.filter(users_id=user.id).all()
+        vms = VM.query.filter_by(users_id=user.id).all()
         for vm in vms:
             template = Template.query.filter_by(id=vm.template_id).first()
             tabvminfos.append({"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate, "first_name": users.first_name, "last_name": users.last_name, "template_name": template.name})

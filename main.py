@@ -445,7 +445,7 @@ def get_roles():
 @login_required
 @check_prof
 def get_myusers():
-    users = User.query.filter(User.query.filter_by(parent=current_user.id)).all()
+    users = User.query.filter_by(parent=current_user.id).all()
     logger.info("My Users list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify([{"id":user.id, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "role":user.role, "cas": user.cas, "parent": user.parent} for user in users]), 200
 

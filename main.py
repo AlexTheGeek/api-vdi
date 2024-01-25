@@ -322,7 +322,7 @@ def update_role():
 @check_prof_admin
 def deluser_admin_prof():
     data = request.get_json()
-    if not data or data['user_id']:
+    if not data or not data['user_id']:
         logger.warning("User_id Missing to Delete a user")
         return jsonify({'message': 'User_id missing to delete a user'}), 400
     

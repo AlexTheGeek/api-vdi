@@ -36,7 +36,7 @@ if __name__ == "__main__":
         logger.info('Creating DB')
         db.create_all()
         db.session.commit()
-        # Create openstack user
+        # Create openstack user (A Supprimer)
         if not User.query.filter_by(email="openstack@insa-cvl.fr").first():
             logger.info('Creating openstack user')
             random_password = get_random_string(15)

@@ -106,7 +106,7 @@ class Template(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     name = db.Column(db.String(50), unique=True, nullable=False)
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=True)
+    users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=True) # A supprimer
 
 
 #################
@@ -720,28 +720,33 @@ def delete_vm_admin():
 @login_required
 def get_templates():
     templates = Template.query.all()
-    return jsonify([{"id":template.id, "name":template.name, "users_id":template.users_id, "creationDate":template.creationDate} for template in templates]), 200
+    return jsonify([{"id":template.id, "name":template.name, "creationDate":template.creationDate} for template in templates]), 200
+    # return jsonify([{"id":template.id, "name":template.name, "users_id":template.users_id, "creationDate":template.creationDate} for template in templates]), 200
 
 @app.route('/template/create', methods=['POST'])
 @login_required
+@check_admin
 def create_template():
     data = request.get_json()
     if not data or not data['name']:
         return jsonify({'message': 'Please provide a name'}), 400
-    new_template = Template(id=str(uuid.uuid4()), name=data['name'], users_id=current_user.id)
+    # new_template = Template(id=str(uuid.uuid4()), name=data['name'], users_id=current_user.id)
+    new_template = Template(id=str(uuid.uuid4()), name=data['name'])
     db.session.add(new_template)
     db.session.commit()
     return jsonify({'message': 'Template created successfully'}), 201
 
 @app.route('/template/delete', methods=['DELETE'])
 @login_required
+@check_admin
 def delete_template():
     data = request.get_json()
     template_id = data.get('template_id')
     if not template_id:
         return jsonify({'message': 'Please provide a template ID'}), 400
     if template_id:
-        template = Template.query.filter_by(id=template_id, users_id=current_user.id).first()
+        template = Template.query.filter_by(id=template_id).first()
+        # template = Template.query.filter_by(id=template_id, users_id=current_user.id).first()
         if template:
             db.session.delete(template)
             db.session.commit()
@@ -777,7 +782,7 @@ if __name__ == '__main__':
         logger.info('Creating DB')
         db.create_all()
         db.session.commit()
-        # Create openstack user
+        # Create openstack user (A Supprimer)
         if not User.query.filter_by(email="openstack@insa-cvl.fr").first():
             logger.info('Creating openstack user')
             random_password = get_random_string(15)

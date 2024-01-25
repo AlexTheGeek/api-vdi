@@ -595,13 +595,13 @@ def vm_status_id(uuid):
         vm = VM.query.filter_by(id=uuid).first()
         if vm:
             vm_state, status = openstack.get_status_server(conn_openstack, vm.name)
-            logger.jsonify(current_user.id+" has requested the vm status : "+uuid)
+            logger.info(current_user.id+" has requested the vm status : "+uuid)
             return jsonify({"status": status, "vm_state": vm_state}), 200
         else:
-            logger.jsonify(current_user.id+" has requested the vm status : "+uuid+" successful")
+            logger.info(current_user.id+" has requested the vm status : "+uuid+" successful")
             return jsonify({'status': 'stopped'}), 200
     except:
-        logger.jsonify(current_user.id+" has requested the vm status : "+uuid+" FAILED")
+        logger.warning(current_user.id+" has requested the vm status : "+uuid+" FAILED")
         return jsonify({'message': 'VM status failed'}), 500
     
 @app.route('/vm/url/id/<uuid>', methods=['GET'])

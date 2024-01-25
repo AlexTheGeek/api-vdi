@@ -589,15 +589,19 @@ def vm_status_template(template_id):
 @check_prof_admin
 def vm_status_id(uuid):
     if not uuid:
+        logger.warning("No VM ID provided for status vm id admin-prof : "+current_user.id)
         return jsonify({'message': 'Please provide a VM ID'}), 400
     try:
         vm = VM.query.filter_by(id=uuid).first()
         if vm:
             vm_state, status = openstack.get_status_server(conn_openstack, vm.name)
+            logger.jsonify(current_user.id+" has requested the vm status : "+uuid)
             return jsonify({"status": status, "vm_state": vm_state}), 200
         else:
+            logger.jsonify(current_user.id+" has requested the vm status : "+uuid+" successful")
             return jsonify({'status': 'stopped'}), 200
     except:
+        logger.jsonify(current_user.id+" has requested the vm status : "+uuid+" FAILED")
         return jsonify({'message': 'VM status failed'}), 500
     
 @app.route('/vm/url/id/<uuid>', methods=['GET'])

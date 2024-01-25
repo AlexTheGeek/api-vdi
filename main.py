@@ -317,10 +317,30 @@ def update_role():
     logger.info("Role updated: "+data['user_id']+ " by "+current_user.email)
     return jsonify({'message': 'Role updated successfully'}), 200
 
-# @app.route('/deleteuser', methods=['DELETE'])
-# @login_required
-# @check_prof_admin
-# ### TODO
+@app.route('/deleteuser', methods=['DELETE'])
+@login_required
+@check_prof_admin
+def deluser_admin_prof():
+    data = request.get_json()
+    if not data or data['user_id']:
+        logger.warning("User_id Missing to Delete a user")
+        return jsonify({'message': 'User_id missing to delete a user'}), 400
+    
+    user = User.query.filter_by(id=data['user_id']).first()
+    if user.cas == True:
+        logger.warning("Cant delete a CAS User")
+        return jsonify({'message': 'Cant delete a CAS User'}), 401
+
+    vms = VM.query.filter_by(user_id=data['user_id']).all()
+    for vm in vms:
+        logger.info("VM id: "+vm.id+" deleted of user : "+user.id)
+        db.session.delete(vm)
+        db.session.commit()
+
+    db.session.delete(user) 
+    db.session.commit()
+    logger.info("User delete : "+user.id)
+    return jsonify({'message': 'User '+user.id+' deleted succesfully'}), 200
 
 
 @app.route('/logincas', methods=['GET', 'POST'])
@@ -653,7 +673,7 @@ def user_active_vm(uuid):
 
 @app.route('/vm/delete_admin', methods=['DELETE'])
 @login_required
-@check_admin
+@check_prof_admin
 def delete_vm_admin():
     data = request.get_json()
     vm_id = data.get('vm_id')

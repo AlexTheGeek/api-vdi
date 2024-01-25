@@ -331,7 +331,7 @@ def deluser_admin_prof():
         logger.warning("Cant delete a CAS User")
         return jsonify({'message': 'Cant delete a CAS User'}), 401
 
-    vms = VM.query.filter_by(user_id=data['user_id']).all()
+    vms = VM.query.filter_by(users_id=data['user_id']).all()
     for vm in vms:
         logger.info("VM id: "+vm.id+" deleted of user : "+user.id)
         db.session.delete(vm)

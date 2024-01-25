@@ -273,6 +273,29 @@ def update_password():
         else:
             logger.warning("Password update failed: "+user.email+ " by "+current_user.email)
             return jsonify({'message': 'New passwords do not match'}), 400
+        
+@app.route('/updatepasswordpa', methods=['POST'])
+@check_prof_admin
+@login_required
+def update_password():
+    data = request.get_json()
+    if data['user_id']:
+        user_id = data['user_id']
+    else:
+        user_id = current_user.id
+    if not data or not data['new_password'] or not data['new_password2']:
+        logger.warning("Password update failed: Missing Data "+user_id+ " by "+current_user.email)
+        return jsonify({'message': 'Please provide a new password'}), 400
+    user = User.query.filter_by(id=user_id).first()
+    if data['new_password'] == data['new_password2']:
+        hashed_password = PasswordHasher().hash(data['new_password']) 
+        user.password = hashed_password
+        db.session.commit()
+        logger.info("Password updated: "+user.email+ " by "+current_user.email)
+        return jsonify({'message': 'Password updated successfully'}), 200
+    else:
+        logger.warning("Password update failed: "+user.email+ " by "+current_user.email)
+        return jsonify({'message': 'New passwords do not match'}), 400
 
 @app.route('/updaterole', methods=['POST'])
 @login_required

@@ -525,7 +525,7 @@ def get_myvmsusers():
         vms = VM.query.filter_by(users_id=user.id).all()
         for vm in vms:
             template = Template.query.filter_by(id=vm.template_id).first()
-            tabvminfos.append({"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate, "first_name": users.first_name, "last_name": users.last_name, "template_name": template.name})
+            tabvminfos.append({"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate, "first_name": user.first_name, "last_name": user.last_name, "template_name": template.name})
 
     logger.info("My VMs list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify(tabvminfos), 200

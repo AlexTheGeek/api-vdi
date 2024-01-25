@@ -519,10 +519,17 @@ def get_vms():
 @login_required
 @check_prof
 def get_myvmsusers():
-    # à changer
-    vm = VM.query.filter(VM.users_id.like("%"+current_user.id)).all()
+    users = User.query.filter_by(parent=current_user.id).all()
+    tabvminfos = []
+    for user in users:
+        vms = VM.query.filter(users_id=user).all()
+        for vm in vms:
+            template = Template.query.filter_by(id=vm.template_id).first()
+            tabvminfos.append({"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate, "first_name": users.first_name, "last_name": users.last_name, "template_name": template.name})
+
     logger.info("My VMs list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
-    return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vm]), 200
+    return jsonify(tabvminfos), 200
+    # return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vm]), 200
 
 @app.route('/vm/create', methods=['POST'])
 @login_required

@@ -79,7 +79,7 @@ class User(UserMixin, db.Model):
     parent = db.Column(db.String(36))
     tokens = db.relationship('TokenUser', backref='user', lazy=True) # A supprimer
     vms = db.relationship('VM', backref='user', lazy=True)
-    templates = db.relationship('Template', backref='user', lazy=True)
+    templates = db.relationship('Template', backref='user', lazy=True) # A supprimer
 
 
 # TokenUser model (A supprimer)

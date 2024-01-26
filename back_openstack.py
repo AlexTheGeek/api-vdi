@@ -139,14 +139,14 @@ def create_instance(conn, vm_name:str, vm_image:str):
         userdata = """#!/bin/bash\necho 'INSTALL VDI'\n"""
         # userdata = """#!/bin/sh\nuserdel -rf user\nuseradd -m -s /bin/bash vdi\necho "vdi:azerty" | chpasswd\nsed -i -e 's/^#autologin-guest=false/autologin-guest=false/' -e 's/^#autologin-user=/autologin-user=vdi/' -e 's/^#autologin-user-timeout=0/autologin-user-timeout=0/' /etc/lightdm/lightdm.conf\nsed -i 's/^auth[[:space:]]\+required[[:space:]]\+pam_succeed_if.so[[:space:]]\+user[[:space:]]\+/auth required pam_succeed_if.so user != anything quiet_success/' /etc/pam.d/lightdm-autologin\nsystemctl disable ssh\nsystemctl stop ssh\nreboot\n"""
         # userdata = """#!/bin/sh\nuserdel -rf user\nuseradd -m -s /bin/bash hugo\necho "hugo:azerty" | chpasswd\nsystemctl disable ssh\nsystemctl stop ssh\n"""
-        conn.compute.create_server(
+        server = conn.compute.create_server(
             name=vm_name,
             image_id=image.id,
             flavor_id=flavor.id,
             networks=[{"uuid": PRIVATE_NETWORK_ID}],
             user_data=base64.b64encode(userdata.encode("utf-8")).decode("utf-8"),
         )
-        #conn.compute.wait_for_server(server)
+        conn.compute.wait_for_server(server)
         return 0
     else:
         return 1

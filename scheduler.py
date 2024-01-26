@@ -33,8 +33,7 @@ def synchronize_template_image():
     for image in images_openstack:
         if image not in templates_db:
             # Insert the image in the database
-            cursor.execute("INSERT INTO template (id, name, users_id) VALUES (%s, %s, %s)", (str(uuid.uuid4()), str(image), "1"))
-            # cursor.execute("INSERT INTO template (id, name) VALUES (%s, %s)", (str(uuid.uuid4()), str(image)))
+            cursor.execute("INSERT INTO template (id, name) VALUES (%s, %s)", (str(uuid.uuid4()), str(image)))
             db.commit()
 
 

@@ -690,6 +690,19 @@ def delete_vm_admin():
         return jsonify({'message': 'VM ID is required'}), 400
 
 
+@app.route('/getvmid', methods=['POST'])
+@login_required
+def get_vm_id():
+    data = request.get_json()
+    vm_token = data.get('vm_token')
+    if not vm_token:
+        logger.warning("VM Token missing")
+        return jsonify({'message' : 'VM Token URL missing'}), 400
+    
+    vm_id = VM.query.filter_by(users_id=current_user.id, vncurl=vm_token).first().id
+    logger.info("VM ID requested by : "+current_user.id)
+    return jsonify({'vm_id' : vm_id}), 200
+
 #######################
 ### Template Routes ###
 #######################

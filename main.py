@@ -533,7 +533,6 @@ def create_vm():
     except:
         logger.warning("VM creation failed: "+data['template_id']+"---"+current_user.email+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
         return jsonify({'message': 'VM creation failed'}), 500
-    time.sleep(10)
     try:
         url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
         print(url_vnc)

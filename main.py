@@ -444,16 +444,19 @@ def check_auth():
 @app.route('/check-auth-vnc/<uri>')
 @login_required
 def check_auth_vnc(uri):
-    # /?path=%3Ftoken%3D94cc50ac-e265-44eb-bfdd-6cc4feb4168e&autoconnect=true&reconnect=true remove /?path= and &autoconnect=true&reconnect=true
     part_after_equal = uri.split('=', 1)[1]
     token_url = part_after_equal.split('&', 1)[0]
-    vm = VM.query.filter_by(vncurl=token_url).first().users_id
-    if vm.users_id == current_user.id:
-        logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id+" to Acces VM VNC : "+vm.name)
-        return jsonify({'message': 'Authentication check successful'}), 200
+    vm = VM.query.filter_by(vncurl=token_url).first()
+    if vm:
+        if vm.users_id == current_user.id:
+            logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id+" to Acces VM VNC : "+vm.name)
+            return jsonify({'message': 'Authentication check successful'}), 200
+        else:
+            logger.warning("Wrong User, "+current_user.id+" want to acces to the VM : "+vm.name)
+            return jsonify({'message': 'Unauthorized'}), 401
     else:
-        logger.warning("Wrong User, "+current_user.id+" want to acces to the VM : "+vm.name)
-        return jsonify({'message': 'Unauthorized'}), 401
+        logger.warning("VM Not Found")
+        return jsonify({'message': 'VM Not Found with the vnc'}), 404
 
 
 @app.route('/users', methods=['GET'])

@@ -528,6 +528,7 @@ def create_vm():
     try:
         time.sleep(5)
         url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
+        print(url_vnc)
     except:
         logger.warning("ERROR URL")
         return jsonify({'message': 'ERROR URL'}), 500

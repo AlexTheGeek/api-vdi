@@ -36,16 +36,6 @@ if __name__ == "__main__":
         logger.info('Creating DB')
         db.create_all()
         db.session.commit()
-        # Create openstack user (A Supprimer)
-        if not User.query.filter_by(email="openstack@insa-cvl.fr").first():
-            logger.info('Creating openstack user')
-            random_password = get_random_string(15)
-            hashed_password = PasswordHasher().hash(random_password) 
-            new_user = User(id="1", email="openstack@insa-cvl.fr", first_name="openstack", last_name="openstack",
-                            password=hashed_password, role="admin", cas=True)
-            db.session.add(new_user)
-            db.session.commit()
-            logger.info("Default admin user created with password: "+random_password)
         # Create default admin user
         if not User.query.filter_by(email="admin@admin.fr").first():
             logger.info('Creating default admin user')

@@ -7,7 +7,7 @@ import datetime
 
 db_config = {
     'host': '127.0.0.1',
-    'database': 'vdi3',
+    'database': 'vdi4',
     'user': 'root',
     'password': 'azerty',
 }

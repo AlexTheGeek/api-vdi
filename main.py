@@ -20,13 +20,14 @@ from functools import wraps
 from flask_migrate import Migrate
 import logging
 import os
+import time
 
 ################
 ### Vars APP ###
 ################
 app = Flask(__name__, static_folder='static') # Adding static folder for robots.txt
 CORS(app, supports_credentials=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi3' # Change these credentials to your own database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi4' # Change these credentials to your own database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key' # Change this to your own secret key
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key' # Change this to your own secret key
@@ -77,17 +78,7 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20))
     cas = db.Column(db.Boolean, default=True)
     parent = db.Column(db.String(36))
-    tokens = db.relationship('TokenUser', backref='user', lazy=True) # A supprimer
     vms = db.relationship('VM', backref='user', lazy=True)
-    templates = db.relationship('Template', backref='user', lazy=True) # A supprimer
-
-
-# TokenUser model (A supprimer)
-class TokenUser(db.Model):
-    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
-    users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
-    token = db.Column(db.String(200))
-    creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
 # VM model
@@ -96,9 +87,9 @@ class VM(db.Model):
     name = db.Column(db.String(100), unique=True)
     template_id = db.Column(db.String(36))
     users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
-    # vncurl = db.Column(db.String(200))
+    vncurl = db.Column(db.String(200))
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    # activeDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    activeDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
 # Template model
@@ -106,7 +97,6 @@ class Template(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     name = db.Column(db.String(50), unique=True, nullable=False)
     creationDate = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    users_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=True) # A supprimer
 
 
 #################
@@ -115,28 +105,6 @@ class Template(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(str(user_id))
-
-
-# Token Serializer
-# def generate_token(user):
-#     serializer = URLSafeTimedSerializer(app.config['TOKEN_SECRET_KEY'])
-#     return serializer.dumps({'user_id': user.id})
-
-
-# Middleware for token-based authentication
-
-#@app.before_request
-# def check_token():
-#     # if request.endpoint not in ['login', 'register', 'check_auth'] and not current_user.is_authenticated:
-#     token = request.headers.get('Authorization')
-#     if not token:
-#         return jsonify({'message': 'Token is missing'}), 401
-
-#     user = User.query.join(TokenUser).filter(TokenUser.token == token).first()
-#     if user:
-#         login_user(user)
-#     else:
-#         return jsonify({'message': 'Invalid token'}), 401
 
 def extract_user_info(xml_response):
     user_info = {}
@@ -473,6 +441,12 @@ def check_auth():
     logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify({'message': 'Authentication check successful'})
 
+@app.route('/check-auth-vnc')
+@login_required
+def check_auth_vnc():
+    logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
+    return jsonify({'message': 'Authentication check successful'}), 200
+
 
 @app.route('/users', methods=['GET'])
 @login_required
@@ -551,11 +525,14 @@ def create_vm():
     except:
         logger.warning("VM creation failed: "+data['template_id']+"---"+current_user.email+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
         return jsonify({'message': 'VM creation failed'}), 500
-    # try:
-    #     url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
-    # except:
-    #     return jsonify({'message': 'ERROR URL'}), 500
-    # new_vm.vncurl = url_vnc.rsplit('0/vnc_auto.html?path=', 1)[-1]
+    try:
+        time.sleep(5)
+        url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
+    except:
+        logger.warning("ERROR URL")
+        return jsonify({'message': 'ERROR URL'}), 500
+    new_vm.vncurl = url_vnc.rsplit('0/vnc_auto.html?path=', 1)[-1]
+    new_vm.activeDate = datetime.datetime.utcnow()
     db.session.add(new_vm)
     db.session.commit()
     logger.info("VM created: "+data['template_id']+"---"+current_user.email+" from template: "+template_name+" by "+current_user.email)
@@ -730,7 +707,6 @@ def create_template():
     data = request.get_json()
     if not data or not data['name']:
         return jsonify({'message': 'Please provide a name'}), 400
-    # new_template = Template(id=str(uuid.uuid4()), name=data['name'], users_id=current_user.id)
     new_template = Template(id=str(uuid.uuid4()), name=data['name'])
     db.session.add(new_template)
     db.session.commit()
@@ -746,7 +722,6 @@ def delete_template():
         return jsonify({'message': 'Please provide a template ID'}), 400
     if template_id:
         template = Template.query.filter_by(id=template_id).first()
-        # template = Template.query.filter_by(id=template_id, users_id=current_user.id).first()
         if template:
             db.session.delete(template)
             db.session.commit()
@@ -782,16 +757,6 @@ if __name__ == '__main__':
         logger.info('Creating DB')
         db.create_all()
         db.session.commit()
-        # Create openstack user (A Supprimer)
-        if not User.query.filter_by(email="openstack@insa-cvl.fr").first():
-            logger.info('Creating openstack user')
-            random_password = get_random_string(15)
-            hashed_password = PasswordHasher().hash(random_password) 
-            new_user = User(id="1", email="openstack@insa-cvl.fr", first_name="openstack", last_name="openstack",
-                            password=hashed_password, role="admin", cas=True)
-            db.session.add(new_user)
-            db.session.commit()
-            logger.info("Openstack user created with password: "+random_password)
         # Create default admin user
         if not User.query.filter_by(email="admin@admin.fr").first():
             logger.info('Creating default admin user')

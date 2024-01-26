@@ -441,11 +441,16 @@ def check_auth():
     logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify({'message': 'Authentication check successful'})
 
-@app.route('/check-auth-vnc')
+@app.route('/check-auth-vnc?token=<token_url>')
 @login_required
-def check_auth_vnc():
-    logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
-    return jsonify({'message': 'Authentication check successful'}), 200
+def check_auth_vnc(token_url):
+    vm = VM.query.filter_by(vncurl=token_url).first().users_id
+    if vm.users_id == current_user.id:
+        logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id+" to Acces VM VNC : "+vm.name)
+        return jsonify({'message': 'Authentication check successful'}), 200
+    else:
+        logger.warning("Wrong User, "+current_user.id+" want to acces to the VM : "+vm.name)
+        return jsonify({'message': 'Unauthorized'}), 401
 
 
 @app.route('/users', methods=['GET'])

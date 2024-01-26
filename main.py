@@ -587,15 +587,10 @@ def vm_status_id(uuid):
 def vm_url_id(uuid):
     if not uuid:
         return jsonify({'message': 'Please provide a VM ID'}), 400
-    vm_name = VM.query.filter_by(id=uuid, users_id=current_user.id).first().name
-    if vm_name:
-        try:
-            url_vnc = openstack.get_console_url(conn_openstack, vm_name)
-        except:
-            return jsonify({'message': 'ERROR URL'}), 500
-        url = url_vnc.rsplit('0/vnc_auto.html', 1)[-1]
-        # print(url)
-        return jsonify({"url": "https://vnc.insa-cvl.com/"+url}), 200
+    vm = VM.query.filter_by(id=uuid, users_id=current_user.id).first()
+    if vm:
+        token = vm.vncurl
+        return jsonify({"url": "https://vnc.insa-cvl.com/?path="+token}), 200
     else:
         return jsonify({'message': 'VM not found'}), 404
 
@@ -606,16 +601,10 @@ def vm_url_id(uuid):
 def vm_url_template(template_id):
     if not template_id:
         return jsonify({'message': 'Please provide a template ID'}), 400
-    vm_name = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first().name
-    if vm_name:
-        try:
-            url_vnc = openstack.get_console_url(conn_openstack, vm_name)
-        except:
-            return jsonify({'message': 'ERROR URL'}), 500
-        # print(url_vnc)
-        url = url_vnc.rsplit('0/vnc_auto.html', 1)[-1]
-        # print(url)
-        return jsonify({"url": "https://vnc.insa-cvl.com/"+url}), 200
+    vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
+    if vm:
+        token = vm.vncurl
+        return jsonify({"url": "https://vnc.insa-cvl.com/?path="+token}), 200
     else:
         return jsonify({'message': 'Template not found'}), 404
 

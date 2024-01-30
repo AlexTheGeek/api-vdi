@@ -444,9 +444,9 @@ def check_auth():
 @app.route('/check-auth-vnc')
 @login_required
 def check_auth_vnc():
-    uri = request.headers.get('X-Original-URI')
-    print(request.headers)
-    print("uri: "+uri)
+    headers = dict(request.headers)
+    print(headers)
+    uri = "/test=token"
     part_after_equal = uri.split('=', 1)[1]
     token_url = part_after_equal.split('&', 1)[0]
     vm = VM.query.filter_by(vncurl=token_url).first()

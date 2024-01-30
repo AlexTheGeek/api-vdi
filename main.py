@@ -445,7 +445,7 @@ def check_auth():
 @login_required
 def check_auth_vnc():
     uri = request.headers.get('X-Original-URI')
-    print("here: "+request.headers)
+    print(request.headers)
     print("uri: "+uri)
     part_after_equal = uri.split('=', 1)[1]
     token_url = part_after_equal.split('&', 1)[0]

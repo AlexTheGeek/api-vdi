@@ -449,7 +449,8 @@ def check_auth_vnc():
     headers = dict(request.headers)
     logger.critical(headers)
     uri = str(request.headers.get("X-Original-Uri"))
-    uri = uri[1:]
+    uri = uri[7:]
+    uri = uri[:-32]
     logger.critical(uri)
     token_url = urllib.parse.quote(uri)
     print(token_url)

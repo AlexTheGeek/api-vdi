@@ -643,13 +643,13 @@ def delete_vm():
         return jsonify({'message': 'VM ID is required'}), 400
 
 
-@app.route('/vm/active/<uuid>', methods=['GET'])
+@app.route('/vm/active/<templateid>', methods=['GET'])
 @login_required
-def user_active_vm(uuid):
+def user_active_vm(templateid):
     # Update the database VMs activeDate with the current date
     if not uuid:
         return jsonify({'message': 'Please provide a VM ID'}), 400
-    vm = VM.query.filter_by(id=uuid, users_id=current_user.id).first()
+    vm = VM.query.filter_by(template_id=templateid, users_id=current_user.id).first()
     if vm:
         vm.activeDate = datetime.datetime.utcnow()
         db.session.commit()

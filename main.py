@@ -454,7 +454,7 @@ def check_auth_vnc():
     logger.critical(uri)
     token_url = str(urllib.parse.quote(uri))
     print(token_url)
-    vm = VM.query.filter_by(vncurl="%3Ftoken%3D8376b7b6-31a1-42e0-b1b8-5d949dbcb5bd").first()
+    vm = VM.query.filter_by(vncurl=str(token_url)).first()
     if vm:
         if vm.users_id == current_user.id:
             logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id+" to Acces VM VNC : "+vm.name)

@@ -447,6 +447,8 @@ def check_auth_vnc():
     headers = dict(request.headers)
     print(headers)
     uri = str(request.headers.get("uri"))
+    print(uri)
+    uri = "/test?=token"
     part_after_equal = uri.split('=', 1)[1]
     token_url = part_after_equal.split('&', 1)[0]
     vm = VM.query.filter_by(vncurl=token_url).first()

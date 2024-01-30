@@ -446,8 +446,8 @@ def check_auth():
 @app.route('/check-auth-vnc')
 @login_required
 def check_auth_vnc():
-    headers = dict(request.headers)
-    logger.critical(headers)
+    # headers = dict(request.headers)
+    # logger.critical(headers)
     uri = str(request.headers.get("X-Original-Uri"))
     if uri.find("path") != -1:
         uri = uri[7:]
@@ -460,7 +460,7 @@ def check_auth_vnc():
     token_url = uri.replace("=", "%3D")
     
     # token_url = urllib.parse.quote(uri)
-    print(token_url)
+    # print(token_url)
     vm = VM.query.filter_by(vncurl=token_url).first()
     if vm:
         if vm.users_id == current_user.id:

@@ -446,7 +446,7 @@ def check_auth():
 def check_auth_vnc():
     headers = dict(request.headers)
     logger.critical(headers)
-    uri = str(request.headers.get("uri"))
+    uri = str(request.headers.get("X-Original-Uri"))
     logger.critical(uri)
     uri = "/test?=token"
     part_after_equal = uri.split('=', 1)[1]

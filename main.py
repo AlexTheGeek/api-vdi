@@ -452,7 +452,7 @@ def check_auth_vnc():
     uri = uri[7:]
     uri = uri[:-32]
     logger.critical(uri)
-    token_url = urllib.parse.quote(uri)
+    token_url = str(urllib.parse.quote(uri))
     print(token_url)
     vm = VM.query.filter_by(vncurl=token_url).first()
     if vm:

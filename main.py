@@ -441,9 +441,10 @@ def check_auth():
     logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify({'message': 'Authentication check successful'})
 
-@app.route('/check-auth-vnc/<uri>')
+@app.route('/check-auth-vnc')
 @login_required
-def check_auth_vnc(uri):
+def check_auth_vnc():
+    uri = request.headers.get('X-Original-URI')
     part_after_equal = uri.split('=', 1)[1]
     token_url = part_after_equal.split('&', 1)[0]
     vm = VM.query.filter_by(vncurl=token_url).first()

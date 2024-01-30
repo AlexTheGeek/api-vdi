@@ -452,8 +452,11 @@ def check_auth_vnc():
     uri = uri[7:]
     uri = uri[:-32]
     logger.critical(uri)
-    token_url = urllib.parse.quote(uri)
-    print(type(token_url))
+    uri = uri.replace("?", "%3F")
+    token_url = uri.replace("=", "%3D")
+    
+    # token_url = urllib.parse.quote(uri)
+    print(token_url)
     if token_url == "%3Ftoken%3D8376b7b6-31a1-42e0-b1b8-5d949dbcb5bd":
         logger.warning("OK")
     else:

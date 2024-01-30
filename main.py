@@ -449,19 +449,19 @@ def check_auth_vnc():
     headers = dict(request.headers)
     logger.critical(headers)
     uri = str(request.headers.get("X-Original-Uri"))
-    uri = uri[7:]
-    uri = uri[:-32]
-    logger.critical(uri)
+    if uri.find("path") != -1:
+        uri = uri[7:]
+        uri = uri[:-32]
+    else:
+        uri = uri[1:]
+   
+    logger.critical(uri)        
     uri = uri.replace("?", "%3F")
     token_url = uri.replace("=", "%3D")
     
     # token_url = urllib.parse.quote(uri)
     print(token_url)
-    if token_url == "%3Ftoken%3D8376b7b6-31a1-42e0-b1b8-5d949dbcb5bd":
-        logger.warning("OK")
-    else:
-        logger.warning("NOT OK")
-    vm = VM.query.filter_by(vncurl=str(token_url)).first()
+    vm = VM.query.filter_by(vncurl=token_url).first()
     if vm:
         if vm.users_id == current_user.id:
             logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id+" to Acces VM VNC : "+vm.name)

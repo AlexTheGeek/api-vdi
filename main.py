@@ -21,6 +21,8 @@ from flask_migrate import Migrate
 import logging
 import os
 import time
+import urllib.parse
+
 
 ################
 ### Vars APP ###
@@ -447,9 +449,10 @@ def check_auth_vnc():
     headers = dict(request.headers)
     logger.critical(headers)
     uri = str(request.headers.get("X-Original-Uri"))
+    uri = uri[1:]
     logger.critical(uri)
-    part_after_equal = uri.split('=', 1)[1]
-    token_url = part_after_equal.split('&', 1)[0]
+    token_url = urllib.parse.quote(uri)
+    print(token_url)
     vm = VM.query.filter_by(vncurl=token_url).first()
     if vm:
         if vm.users_id == current_user.id:

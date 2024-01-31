@@ -1,0 +1,10 @@
+FROM python:3.11.2
+
+RUN pip install schedule mysql-connector-python python-openstackclient
+
+RUN mkdir /scheduler
+WORKDIR /scheduler
+COPY scheduler.py .
+COPY back_openstack.py .
+
+CMD ["python", "scheduler.py"]

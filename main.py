@@ -281,6 +281,10 @@ def update_role():
     if not data or not data['role'] or not data['user_id']:
         logger.warning("Role update failed: Missing Data by "+current_user.email)
         return jsonify({'message': 'Please provide a new role and the user_id'}), 400
+    list_of_roles = ["user", "prof", "admin"]
+    if not data['role'] in list_of_roles:
+        logger.info("Role not found")
+        return jsonify({'message': 'Role not found'}), 404
     user = User.query.filter_by(id=data['user_id']).first()
     user.role = data['role']
     db.session.commit()

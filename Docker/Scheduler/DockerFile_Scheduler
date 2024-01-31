@@ -4,6 +4,12 @@ RUN pip install schedule mysql-connector-python python-openstackclient
 
 RUN mkdir /scheduler
 WORKDIR /scheduler
+
+ENV DB_HOST="127.0.0.1"
+ENV DB_NAME="vdi4"
+ENV DB_USER="root"
+ENV DB_PASSWORD="azerty"
+
 COPY scheduler.py .
 COPY back_openstack.py .
 

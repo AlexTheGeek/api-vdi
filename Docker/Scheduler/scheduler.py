@@ -14,9 +14,6 @@ db_config = {
 
 conn_openstack = openstack.conn
 
-def job():
-    print("Job is running...")
-
 def synchronize_template_image():
     # Get image on the openstack
     images_openstack = openstack.get_image(conn_openstack)

@@ -33,11 +33,9 @@ app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com' # Change to your domain to 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
-#login_manager.login_view = 'login'
 
 # Openstack API Connection
 conn_openstack = openstack.conn
-
 
 ##################
 ### Log config ###
@@ -207,7 +205,6 @@ def create_user():
         logger.warning("Data Missing: Create_user by "+current_user.email)
         return jsonify({'message': 'Please provide all the required informations (email, first_name, last_name)'}), 400
     random_password = get_random_string(15)
-    # print(random_password)
     hashed_password = PasswordHasher().hash(random_password) 
     new_user = User(id=str(uuid.uuid4()), email=data['email'], first_name=data['first_name'], last_name=data['last_name'],
                     password=hashed_password, role="user", cas=False, parent=current_user.id)
@@ -315,7 +312,6 @@ def deluser_admin_prof():
 @app.route('/logincas', methods=['GET', 'POST'])
 def logincas():
     ticket_id = request.args.get('ticket')
-    # print(ticket_id)
     if ticket_id:
         validation_url = "https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id
         # validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id+"&attributes=cn,eduPersonPrincipalName,givenName,mail,sn,uid"
@@ -323,9 +319,9 @@ def logincas():
             response = requests.get(validation_url)
         except:
             return jsonify({'message': 'Ticket validation failed'}), 500
-        # print(response.text)
+        
         user_attributes = extract_user_info(response.text)
-        # print(user_attributes['user_id'])
+
         user = User()
         user.id = user_attributes['user_id']
         user.email = user_attributes['user_id']+"@insa-cvl.fr" #user_attributes['mail']
@@ -342,28 +338,10 @@ def logincas():
             db.session.commit()
                 
         login_user(user)
-        # token = generate_token(user)
 
-        # # remove old token
-        # TokenUser.query.filter_by(users_id=user.id).delete()
-
-        # # Store token in tokens_user table
-        # new_token = TokenUser(users_id=user.id, token=token)
-
-        # db.session.add(new_token)
-        # db.session.commit()
-
-        # custom_headers = {'Authorization': token}
         logger.info("Login successful: "+user_attributes['user_id']+" with CAS "+user.email)
         return redirect("https://vdi.insa-cvl.com/dashboard")
-        # return render_template('login_redirect', custom_headers=custom_headers)
 
-        # response = jsonify({'message': 'Login successful'})
-        # response.headers['Authorization'] = token
-        # print(response.headers)
-        # return response, 200
-        # return redirect("https://vdi.insa-cvl.com/student")       
-        # return jsonify({'message': 'Login successful', "ticket_id" : ticket_id, "validation_url":validation_url, "user_id": user_attributes['user_id']}), 200
     logger.warning("Login failed: "+user_attributes['user_id']+" with CAS ")
     return jsonify({'message': 'Ticket is missing'}), 404
 
@@ -384,21 +362,6 @@ def login():
     
     if user and PasswordHasher().verify(user.password, data['password']):
         login_user(user)
-        # token = generate_token(user)
-
-        # # remove old token
-        # TokenUser.query.filter_by(users_id=user.id).delete()
-        # db.session.commit()
-        
-        # # Store token in tokens_user table
-        # new_token = TokenUser(users_id=user.id, token=token)
-
-        # db.session.add(new_token)
-        # db.session.commit()
-
-        # response = jsonify({'message': 'Login successful'})
-        # response.headers['Authorization'] = token
-        # print(response.headers)
         logger.info("Login successful: "+data['email'])
         return jsonify({'message': 'Login successful'}), 200
     else:
@@ -409,9 +372,6 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
-    # remove token
-    # TokenUser.query.filter_by(users_id=current_user.id).delete()
-    # db.session.commit()
     user = User.query.filter_by(id=current_user.id).first()
     logout_user()
     if user.cas:
@@ -445,23 +405,17 @@ def check_auth():
 @app.route('/check-auth-vnc')
 @login_required
 def check_auth_vnc():
-    # headers = dict(request.headers)
-    # logger.critical(headers)
     uri = str(request.headers.get("X-Original-Uri"))
-    # if ".css" in uri or ".js" in uri or ".svg" in uri or ".oga" in uri or ".mp3" in uri or ".woff" in uri or ".ttf" in uri:
-    #     return jsonify({'message': 'File OK'}), 200 
+
     if uri.find("path") != -1:
         uri = uri[7:]
         uri = uri[:-32]
     else:
         uri = uri[1:]
-   
-    logger.critical(uri)        
+        
     uri = uri.replace("?", "%3F")
     token_url = uri.replace("=", "%3D")
     
-    # token_url = urllib.parse.quote(uri)
-    # print(token_url)
     vm = VM.query.filter_by(vncurl=token_url).first()
     if vm:
         if vm.users_id == current_user.id:
@@ -514,7 +468,6 @@ def get_vms():
         template = Template.query.filter_by(id=vm.template_id).first()
         tabvminfos.append({"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate, "first_name": user.first_name, "last_name": user.last_name, "template_name": template.name})
     return jsonify(tabvminfos), 200
-    #return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vms]), 200
 
 @app.route('/myvmsusers', methods=['GET'])
 @login_required
@@ -530,7 +483,6 @@ def get_myvmsusers():
 
     logger.info("My VMs list access: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id)
     return jsonify(tabvminfos), 200
-    # return jsonify([{"id": vm.id, "name":vm.name, "template_id": vm.template_id, "users_id": vm.users_id, "creationDate": vm.creationDate} for vm in vm]), 200
 
 @app.route('/vm/create', methods=['POST'])
 @login_required
@@ -571,7 +523,6 @@ def create_vm():
     try:
         url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
         logger.info("URL VNC created")
-        # print(url_vnc)
     except:
         logger.warning("ERROR URL")
         return jsonify({'message': 'ERROR URL'}), 500
@@ -596,9 +547,7 @@ def vm_status_template(template_id):
         return jsonify({'message': 'DB ERROR'}), 500
     if vm:
         try:
-            # print(vm.name)
             vm_state, status = openstack.get_status_server(conn_openstack, vm.name)
-            # print(vm_state)
         except:
             return jsonify({'message': 'VM STATUS FAILLED'}), 500
         return jsonify({"status": status, "vm_state": vm_state}), 200
@@ -662,7 +611,6 @@ def vm_regenerate_url_vm(templateid):
     
     vm = VM.query.filter_by(template_id=templateid, users_id=current_user.id).first()
     if vm:
-        # Récupération d'une nouvelle URL VNC
         try:
             url_vnc = openstack.get_console_url(conn_openstack, vm.name)
             logger.info("NEW URL VNC created")
@@ -706,7 +654,6 @@ def delete_vm():
 @app.route('/vm/active/<templateid>', methods=['GET'])
 @login_required
 def user_active_vm(templateid):
-    # Update the database VMs activeDate with the current date
     if not uuid:
         return jsonify({'message': 'Please provide a VM ID'}), 400
     vm = VM.query.filter_by(template_id=templateid, users_id=current_user.id).first()
@@ -771,7 +718,6 @@ def get_vm_id():
 def get_templates():
     templates = Template.query.all()
     return jsonify([{"id":template.id, "name":template.name, "creationDate":template.creationDate} for template in templates]), 200
-    # return jsonify([{"id":template.id, "name":template.name, "users_id":template.users_id, "creationDate":template.creationDate} for template in templates]), 200
 
 @app.route('/template/create', methods=['POST'])
 @login_required
@@ -813,7 +759,6 @@ def get_template_info(uuid):
     if uuid:
         template = Template.query.filter_by(id=uuid).first()
         if template:
-            # Ajouter la récupération des infos du tempalte depuis OpenStack
             return jsonify({'message': 'Template found successfully'}), 200
         else:
             return jsonify({'message': 'Template not found'}), 404

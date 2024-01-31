@@ -1,14 +1,11 @@
 ##################
 ### Librairies ###
 ##################
-from flask import Flask, request, jsonify, Response, redirect, render_template, abort, session, send_from_directory
+from flask import Flask, request, jsonify, redirect, abort, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import URLSafeTimedSerializer
 import uuid
 import datetime
-import mysql.connector
 from argon2 import PasswordHasher
 import back_openstack as openstack
 from flask_cors import CORS
@@ -20,8 +17,6 @@ from functools import wraps
 from flask_migrate import Migrate
 import logging
 import os
-import time
-import urllib.parse
 
 
 ################

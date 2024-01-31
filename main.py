@@ -18,7 +18,6 @@ from flask_migrate import Migrate
 import logging
 import os
 
-
 ################
 ### Vars APP ###
 ################
@@ -32,6 +31,7 @@ app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com' # Change to your domain to 
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+db.init_app(app)
 login_manager = LoginManager(app)
 
 # Openstack API Connection
@@ -775,35 +775,37 @@ if __name__ == '__main__':
         logger.info('Creating DB')
         db.create_all()
         db.session.commit()
-        # Create default admin user
-        if not User.query.filter_by(email="admin@admin.fr").first():
-            logger.info('Creating default admin user')
-            random_password = "admin"
-            hashed_password = PasswordHasher().hash(random_password) 
-            new_user = User(id="2", email="admin@admin.fr", first_name="Admin", last_name="VDI",
-                            password=hashed_password, role="admin", cas=False)
-            db.session.add(new_user)
-            db.session.commit()
-            logger.info("Default admin user created with password: "+random_password)
-        # Create default prof user
-        if not User.query.filter_by(email="prof@prof.fr").first():
-            logger.info('Creating default prof user')
-            random_password = "prof"
-            hashed_password = PasswordHasher().hash(random_password) 
-            new_user = User(id="3", email="prof@prof.fr", first_name="Prof", last_name="VDI",
-                            password=hashed_password, role="prof", cas=False)
-            db.session.add(new_user)
-            db.session.commit()
-            logger.info("Default prof user created with password: "+random_password)
-        # Create default etudiant user
-        if not User.query.filter_by(email="etudiant@etudiant.fr").first():
-            logger.info('Creating default etudiant user')
-            random_password = "etudiant"
-            hashed_password = PasswordHasher().hash(random_password) 
-            new_user = User(id="4", email="etudiant@etudiant.fr", first_name="Etudiant", last_name="VDI",
-                            password=hashed_password, role="user", cas=False)
-            db.session.add(new_user)
-            db.session.commit()
-            logger.info("Default etudiant user created with password: "+random_password)
+        user = User.query.first()
+        if not user:
+            # Create default admin user
+            if not User.query.filter_by(email="admin@admin.fr").first():
+                logger.info('Creating default admin user')
+                random_password = "admin"
+                hashed_password = PasswordHasher().hash(random_password) 
+                new_user = User(id="2", email="admin@admin.fr", first_name="Admin", last_name="VDI",
+                                password=hashed_password, role="admin", cas=False)
+                db.session.add(new_user)
+                db.session.commit()
+                logger.info("Default admin user created with password: "+random_password)
+            # Create default prof user
+            if not User.query.filter_by(email="prof@prof.fr").first():
+                logger.info('Creating default prof user')
+                random_password = "prof"
+                hashed_password = PasswordHasher().hash(random_password) 
+                new_user = User(id="3", email="prof@prof.fr", first_name="Prof", last_name="VDI",
+                                password=hashed_password, role="prof", cas=False)
+                db.session.add(new_user)
+                db.session.commit()
+                logger.info("Default prof user created with password: "+random_password)
+            # Create default etudiant user
+            if not User.query.filter_by(email="etudiant@etudiant.fr").first():
+                logger.info('Creating default etudiant user')
+                random_password = "etudiant"
+                hashed_password = PasswordHasher().hash(random_password) 
+                new_user = User(id="4", email="etudiant@etudiant.fr", first_name="Etudiant", last_name="VDI",
+                                password=hashed_password, role="user", cas=False)
+                db.session.add(new_user)
+                db.session.commit()
+                logger.info("Default etudiant user created with password: "+random_password)
     logger.info('API started')
     app.run(debug=True, host="0.0.0.0", port=5001)

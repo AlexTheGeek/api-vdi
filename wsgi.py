@@ -2,15 +2,9 @@
 ### Librairies ###
 ##################
 from main import app, db, User, get_random_string
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from argon2 import PasswordHasher
 import logging
 import os
-
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
 ##################
 ### Log config ###

@@ -74,7 +74,6 @@ def check_active_vm():
             db.commit()
 
 # Schedule the job to run every 1 minute
-schedule.every(1).minutes.do(job)
 schedule.every(1).minutes.do(synchronize_template_image)
 schedule.every(2).minutes.do(shutdown_vm)
 schedule.every(15).minutes.do(check_active_vm)

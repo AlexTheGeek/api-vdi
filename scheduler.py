@@ -20,8 +20,6 @@ def job():
 def synchronize_template_image():
     # Get image on the openstack
     images_openstack = openstack.get_image(conn_openstack)
-    # Get template from the database
-    print(images_openstack)
     db = mysql.connector.connect(**db_config)
     cursor = db.cursor()
     cursor.execute("SELECT name FROM template")

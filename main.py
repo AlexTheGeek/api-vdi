@@ -449,7 +449,7 @@ def check_auth_vnc():
     # headers = dict(request.headers)
     # logger.critical(headers)
     uri = str(request.headers.get("X-Original-Uri"))
-    if ".css" in uri or ".js" in uri or ".svg" in uri or ".oga" in uri or ".mp3" in uri:
+    if ".css" in uri or ".js" in uri or ".svg" in uri or ".oga" in uri or ".mp3" in uri or ".woff" in uri or ".ttf" in uri:
         return jsonify({'message': 'File OK'}), 200 
     if uri.find("path") != -1:
         uri = uri[7:]

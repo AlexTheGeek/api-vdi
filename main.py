@@ -31,7 +31,6 @@ app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com' # Change to your domain to 
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-db.init_app(app)
 login_manager = LoginManager(app)
 
 # Openstack API Connection

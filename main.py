@@ -658,6 +658,31 @@ def vm_url_template(template_id):
     else:
         return jsonify({'message': 'Template not found'}), 404
 
+@app.route('/vm/regenerate_url/<templateid>', methods=['GET'])
+@login_required
+def vm_regenerate_url_vm(templateid):
+    if not templateid:
+        logger.warning("templateid missing")
+        return jsonify({'message':'templateid missing'}), 404
+    
+    vm = VM.query.filter_by(template_id=templateid, users_id=current_user.id).first()
+    if vm:
+        # Récupération d'une nouvelle URL VNC
+        try:
+            url_vnc = openstack.get_console_url(conn_openstack, vm.name)
+            logger.info("NEW URL VNC created")
+        except:
+            logger.warning("ERROR URL")
+            return jsonify({'message': 'ERROR URL'}), 500
+        vm.vncurl = url_vnc.rsplit('0/vnc_auto.html?path=', 1)[-1]
+        db.session.commit()
+        logger.info("New VNC URL generated")
+        return jsonify({'message': 'New VNC URL genrrated for the vm '+vm.name}), 200
+    else:
+        logger.warning("VM Not Found")
+        return jsonify({'message' : 'VM Not Found'}), 404
+
+
 
 @app.route('/vm/delete', methods=['DELETE'])
 @login_required

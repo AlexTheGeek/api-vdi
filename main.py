@@ -536,20 +536,20 @@ def get_myvmsusers():
 def create_vm():
     data = request.get_json()
     if not data or not data['template_id']:
-        logger.warning("VM creation failed: "+current_user.email)
+        logger.warning("VM creation failed: "+current_user.id)
         return jsonify({'message': 'Please provide a template ID'}), 400
     
     if VM.query.filter_by(template_id=data['template_id'], users_id=current_user.id).all():
-        logger.critical("VM creation failed: VM already exists - "+current_user.email)
+        logger.critical("VM creation failed: VM already exists - "+current_user.id)
         return jsonify({'message': 'VM already exists'}), 409
     
     new_vm = VM(id=str(uuid.uuid4()), name=data['template_id']+"---"+current_user.id, template_id=data['template_id'], users_id=current_user.id)
     template_name = Template.query.filter_by(id=data['template_id']).first().name
     try:
         openstack.create_instance(conn_openstack, data['template_id']+"---"+current_user.id, template_name)
-        logger.info("VM created: "+data['template_id']+"---"+current_user.email+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
+        logger.info("VM created: "+data['template_id']+"---"+current_user.id+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
     except:
-        logger.warning("VM creation failed: "+data['template_id']+"---"+current_user.email+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
+        logger.warning("VM creation failed: "+data['template_id']+"---"+current_user.id+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
         return jsonify({'message': 'VM creation failed'}), 500
     try:
         url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
@@ -561,7 +561,7 @@ def create_vm():
     new_vm.activeDate = datetime.datetime.utcnow()
     db.session.add(new_vm)
     db.session.commit()
-    logger.info("VM created: "+data['template_id']+"---"+current_user.email+" from template: "+template_name+" by "+current_user.email)
+    logger.info("VM created: "+data['template_id']+"---"+current_user.id+" from template: "+template_name+" by "+current_user.email)
     return jsonify({'message': 'VM created successfully'}), 201
 
 

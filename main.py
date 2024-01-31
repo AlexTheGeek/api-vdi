@@ -550,23 +550,42 @@ def create_vm():
         return jsonify({'message': 'VM already exists'}), 409
     
     new_vm = VM(id=str(uuid.uuid4()), name=data['template_id']+"---"+current_user.id, template_id=data['template_id'], users_id=current_user.id)
+    
+    # Ajout de la VM dans la DB au début du processus de création pour bloquer toute nouvelle création
+    try:
+        db.session.add(new_vm)
+        logger.info("New VM added to the DB")
+        db.session.commit()
+    except:
+        logger.warning("Cant add the new VM to the DB")
+        return jsonify({'message': 'VM cant be created in the DB'}), 500
+
     template_name = Template.query.filter_by(id=data['template_id']).first().name
+    
+    # Création de la VM sur l'OpenStack
     try:
         openstack.create_instance(conn_openstack, data['template_id']+"---"+current_user.id, template_name)
         logger.info("VM created: "+data['template_id']+"---"+current_user.id+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
     except:
+        db.session.delete(new_vm)
+        db.session.commit()
         logger.warning("VM creation failed: "+data['template_id']+"---"+current_user.id+" from template: "+template_name+" by "+current_user.email+" on OpenStack")
         return jsonify({'message': 'VM creation failed'}), 500
+    
+    # Récupération de l'URL VNC
     try:
         url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
-        print(url_vnc)
+        logger.info("URL VNC created")
+        # print(url_vnc)
     except:
         logger.warning("ERROR URL")
         return jsonify({'message': 'ERROR URL'}), 500
+
+    # Ajout de l'URL au record de la DB
     new_vm.vncurl = url_vnc.rsplit('0/vnc_auto.html?path=', 1)[-1]
     new_vm.activeDate = datetime.datetime.utcnow()
-    db.session.add(new_vm)
     db.session.commit()
+
     logger.info("VM created: "+data['template_id']+"---"+current_user.id+" from template: "+template_name+" by "+current_user.email)
     return jsonify({'message': 'VM created successfully'}), 201
 

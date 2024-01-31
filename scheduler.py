@@ -53,8 +53,7 @@ def shutdown_vm():
         vm_state, status = openstack.get_status_server(conn_openstack, vm[1])
         if vm_state != 1:
             # Suppression de la VM sur l'openstack
-            server = conn_openstack.compute.find_server(vm[1])
-            conn_openstack.compute.delete_server(server)
+            openstack.remove_instance(conn_openstack, vm[1])
             
             # Suppression de la VM dans la base de données
             cursor.execute("DELETE FROM vm WHERE id = %s", (vm[0], ))
@@ -73,8 +72,7 @@ def check_active_vm():
         now = datetime.datetime.utcnow()
         if (now - creationDate).total_seconds() > 7200:
             # Suppression de la VM sur l'openstack
-            server = conn_openstack.compute.find_server(vm[1])
-            conn_openstack.compute.delete_server(server)
+            openstack.remove_instance(conn_openstack, vm[1])
             
             # Suppression de la VM dans la base de données
             cursor.execute("DELETE FROM vm WHERE id = %s", (vm[0], ))

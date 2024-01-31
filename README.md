@@ -37,7 +37,7 @@ User=vdi
 Group=vdi
 WorkingDirectory=/path/to/the/folder # Path to the folder containing the wsgi.py file
 Environment="PATH=/home/vdi/.local/bin" # Necessary to find gunicorn if you installed it with pipx
-ExecStart=/home/vdi/.local/bin/gunicorn --access-logfile /var/log/VDI/API/access.log --error-logfile /var/log/VDI/API/error.log --workers 3 --bind 0.0.0.0:5001 wsgi:app # You need to check 
+ExecStart=/home/vdi/.local/bin/gunicorn --access-logfile /var/log/VDI/API/access.log --error-logfile /var/log/VDI/API/error.log --workers 3 --bind 0.0.0.0:5001 main:app # You need to check 
 Restart=always
 
 [Install]

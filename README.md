@@ -10,11 +10,11 @@ This API can manage the following elements :
 
 ## Installation
 ### Requirements
-1. Linux : Ubuntu 20.04, Debian 12
-2. Python 
+1. Linux : Ubuntu 20.04, Debian 11,12
+2. Python 3.11.2
 3. Pip or Pipx : you can even create a virtual environment to run those scripts
 4. Create a user vdi with the home directory `/home/vdi`
-5. Create a folder `/home/vdi/VDI` for the API and and clone this repository in it  
+5. Create a folder `/home/vdi/VDI-API` for the API and and clone this repository in it  
     5.1. `mkdir -p /home/vdi/VDI-API`  
     5.2. `cd /home/vdi/VDI-API`  
     5.3. `git clone https://github.com/AlextTheGeek/api-vdi.git`  
@@ -47,18 +47,22 @@ WantedBy=multi-user.target
 
 ### Scheduler
 #### Systemd
-To run the scheduler as a service, you need to create a systemd service like the example below in the file /etc/systemd/system/vdi-scheduler.service  
-```bash
-[Unit]
-Description=Python VDI Scheduler Service
-After=network.target
+1. Create a file `/etc/systemd/system/vdi-app.service` with the following content :  
+    ```bash
+    [Unit]
+    Description=Python VDI Scheduler Service
+    After=network.target
 
-[Service]
-User=vdi
-Group=vdi
-ExecStart=/usr/bin/python3 /path/to/the/folder/scheduler.py
-Restart=always
+    [Service]
+    User=vdi
+    Group=vdi
+    ExecStart=/usr/bin/python3 /path/to/the/folder/scheduler.py
+    Restart=always
 
-[Install]
-WantedBy=multi-user.target
-```
+    [Install]
+    WantedBy=multi-user.target
+    ```
+2. Reload the systemd daemon : `systemctl daemon-reload`
+3. Enable the service : `systemctl enable vdi-app.service`
+4. Start the service : `systemctl start vdi-app.service`
+5. Check the status of the service : `systemctl status vdi-app.service`

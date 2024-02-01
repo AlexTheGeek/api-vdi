@@ -23,6 +23,12 @@ This API can manage the following elements :
     7.1. Set the rights of the user who runs the API (here vdi) on this folder : `chown -R vdi:vdi /var/log/VDI/API`  
 8. Create a folder /var/log/VDI/Scheduler for the logs of the scheduler : `mkdir -p /var/log/VDI/Scheduler`  
 
+### Database
+#### OS
+
+
+#### Docker
+
 
 ### API
 #### Systemd
@@ -44,6 +50,37 @@ Restart=always
 WantedBy=multi-user.target
 ```
 
+#### Docker
+1. build the image : `docker build -t vdi-api .` or `docker-compose build` with the docker-compose.yml file
+2. run the container : `docker run -it -d -p 5001:5001 --name vdi-api vdi-api` or `docker-compose up -d` with the docker-compose.yml file
+```yaml
+version: "3.9"
+services:
+  vdi-api:
+    image: vdi-api:latest
+    container_name: vdi-api
+    restart: always
+    ports:
+      - 5001:5001
+    environment:
+      - URL_VNC="https://vnc.insa-cvl.com/"
+      - URL_VDI="https://vdi.insa-cvl.com/"
+      - URL_API="https://api.insa-cvl.com/"
+      - DB_HOST="vdi-db"
+      - DB_NAME="vdi"
+      - DB_USER="vdi"
+      - DB_PASSWORD="azerty"
+      - OPENSTACK_PRIVATE_NETWORK_ID="0d49c37b-7077-4152-985c-f5a00ad20677"
+      - OPENSTACK_USERNAME="admin"
+      - OPENSTACK_PASSWORD="3pMrmW899b9y^2kiJa!6#Z#kE%@a2r"
+      - OPENSTACK_AUTH_URL="http://172.10.3.60:5000/v3"
+      - OPENSTACK_PROJECT_NAME="admin"
+      - OPENSTACK_USER_DOMAIN_ID="default"
+      - OPENSTACK_PROJECT_DOMAIN_ID="default"
+    depends_on:
+      - vdi-db
+```	
+3. check the logs : `docker logs vdi-api` or `docker-compose logs -f`
 
 ### Scheduler
 #### Systemd
@@ -66,3 +103,31 @@ WantedBy=multi-user.target
 3. Enable the service : `systemctl enable vdi-app.service`
 4. Start the service : `systemctl start vdi-app.service`
 5. Check the status of the service : `systemctl status vdi-app.service`
+
+
+#### Docker
+1. build the image : `docker build -t vdi-scheduler .` or `docker-compose build` with the docker-compose.yml file
+2. run the container : `docker run -it -d --name vdi-scheduler vdi-scheduler` or `docker-compose up -d` with the docker-compose.yml file
+```yaml
+version: "3.9"
+services:
+    vdi-scheduler:
+    image: vdi-scheduler:latest
+    container_name: vdi-scheduler
+    restart: always
+    environment:
+        - DB_HOST="vdi-db"
+        - DB_NAME="vdi"
+        - DB_USER="vdi"
+        - DB_PASSWORD="azerty"
+        - OPENSTACK_PRIVATE_NETWORK_ID="0d49c37b-7077-4152-985c-f5a00ad20677"
+        - OPENSTACK_USERNAME="admin"
+        - OPENSTACK_PASSWORD="3pMrmW899b9y^2kiJa!6#Z#kE%@a2r"
+        - OPENSTACK_AUTH_URL="http://172.10.3.60:5000/v3"
+        - OPENSTACK_PROJECT_NAME="admin"
+        - OPENSTACK_USER_DOMAIN_ID="default"
+        - OPENSTACK_PROJECT_DOMAIN_ID="default" 
+    depends_on:
+        - vdi-db
+```	
+3. check the logs : `docker logs vdi-scheduler` or `docker-compose logs -f`

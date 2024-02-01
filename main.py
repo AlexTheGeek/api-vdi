@@ -524,7 +524,7 @@ def create_vm():
     
     # Récupération de l'URL VNC
     try:
-        url_vnc = openstack.get_console_url(conn_openstack, data['template_id']+"---"+current_user.id)
+        url_vnc = openstack.get_vnc_url(conn_openstack, data['template_id']+"---"+current_user.id)
         logger.info("URL VNC created")
     except:
         logger.warning("ERROR URL")
@@ -615,7 +615,7 @@ def vm_regenerate_url_vm(templateid):
     vm = VM.query.filter_by(template_id=templateid, users_id=current_user.id).first()
     if vm:
         try:
-            url_vnc = openstack.get_console_url(conn_openstack, vm.name)
+            url_vnc = openstack.get_vnc_url(conn_openstack, vm.name)
             logger.info("NEW URL VNC created")
         except:
             logger.warning("ERROR URL")

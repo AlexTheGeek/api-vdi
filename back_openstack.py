@@ -105,7 +105,7 @@ def get_infos_project(conn, print_infos=True):
         # print("Total Disk Used:", total_disk_used)
     return [quotas, used]
 
-def get_console_url(conn, vm_name:str):
+def get_vnc_url(conn, vm_name:str):
     server = conn.compute.find_server(vm_name)
     object_url = server.get_console_url(conn.compute, "novnc")
     return object_url['url']

@@ -1,8 +1,11 @@
-FROM python:3.11.2-bullseye
+FROM python:3.11.2-bookworm
 
 RUN apt update
 
-RUN pip install gunicorn==20.1.0 Flask==3.0.0 Flask-API==1.1 Flask-Cors==4.0.0 Flask-Login==0.6.3 Flask-Migrate==4.0.5 Flask-SQLAlchemy==3.1.1 argon2-cffi==21.1.0 requests==2.28.1 mysql-connector-python==8.2.0 python-openstackclient==6.0.0
+RUN apt install python3-openstackclient -y
+
+RUN pip install gunicorn==20.1.0 Flask==3.0.0 Flask-API==1.1 Flask-Cors==4.0.0 Flask-Login==0.6.3 Flask-Migrate==4.0.5 Flask-SQLAlchemy==3.1.1 argon2-cffi==21.1.0 requests==2.28.1 mysql-connector-python==8.2.0 
+# python-openstackclient==6.0.0
 
 
 RUN mkdir /api

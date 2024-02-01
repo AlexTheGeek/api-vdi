@@ -29,6 +29,10 @@ app.config['SECRET_KEY'] = 'your_secret_key' # Change this to your own secret ke
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key' # Change this to your own secret key
 app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com' # Change to your domain to set the cookie for all subdomains
 
+URL_VDI = f"https://vdi.insa-cvl.com"
+URL_VNC = f"https://vnc.insa-cvl.com"
+URL_API = f"https://api.insa-cvl.com"
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
@@ -46,7 +50,8 @@ logging.basicConfig(level = logging.INFO)
 # Create handlers
 if not os.path.exists('/var/log/VDI/API'):
     os.makedirs('/var/log/VDI/API')
-    os.system("chown -R alex:alex /var/log/VDI")
+    os.system("chown -R vdi:vdi /var/log/VDI")
+
 f_handler = logging.FileHandler('/var/log/VDI/API/api-flask.log')
 f_handler.setLevel(logging.INFO)
 
@@ -225,8 +230,8 @@ def update_password():
         return jsonify({'message': 'Please provide a new password'}), 400
     user = User.query.filter_by(id=user_id).first()
     if user.cas == True:
-        logger.warning("Cant change password of CAS User")
-        return jsonify({'message': 'Cant change password of CAS User'}), 401
+        logger.warning("Can't change password of a CAS User")
+        return jsonify({'message': "Can't change password of a CAS User"}), 401
     if PasswordHasher().verify(user.password, data['old_password']):
         if data['new_password'] == data['new_password2']:
             hashed_password = PasswordHasher().hash(data['new_password']) 
@@ -237,7 +242,8 @@ def update_password():
         else:
             logger.warning("Password update failed: "+user.email+ " by "+current_user.email)
             return jsonify({'message': 'New passwords do not match'}), 400
-        
+
+# updatepassword functionality for teachers and admins      
 @app.route('/updatepasswordpa', methods=['POST'])
 @check_prof_admin
 @login_required
@@ -252,8 +258,8 @@ def update_password_pa():
         return jsonify({'message': 'Please provide a new password'}), 400
     user = User.query.filter_by(id=user_id).first()
     if user.cas == True:
-        logger.warning("Cant change password of CAS User")
-        return jsonify({'message': 'Cant change password of CAS User'}), 401
+        logger.warning("Can't change password of a CAS User")
+        return jsonify({'message': "Can't change password of a CAS User"}), 401
     if data['new_password'] == data['new_password2']:
         hashed_password = PasswordHasher().hash(data['new_password']) 
         user.password = hashed_password
@@ -293,8 +299,8 @@ def deluser_admin_prof():
     
     user = User.query.filter_by(id=data['user_id']).first()
     if user.cas == True:
-        logger.warning("Cant delete a CAS User")
-        return jsonify({'message': 'Cant delete a CAS User'}), 401
+        logger.warning("Can't delete a CAS User")
+        return jsonify({'message': "Can't delete a CAS User"}), 401
 
     vms = VM.query.filter_by(users_id=data['user_id']).all()
     for vm in vms:
@@ -305,15 +311,14 @@ def deluser_admin_prof():
     db.session.delete(user) 
     db.session.commit()
     logger.info("User delete : "+user.id)
-    return jsonify({'message': 'User '+user.id+' deleted succesfully'}), 200
+    return jsonify({'message': 'User '+user.id+' deleted successfully'}), 200
 
-
+#Works only for INSA CVl as we call our school's CAS API
 @app.route('/logincas', methods=['GET', 'POST'])
 def logincas():
     ticket_id = request.args.get('ticket')
     if ticket_id:
-        validation_url = "https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id
-        # validation_url = "https://cas.insa-cvl.fr/cas/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id+"&attributes=cn,eduPersonPrincipalName,givenName,mail,sn,uid"
+        validation_url = f"https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2Fapi.{DOMAIN_NAME}%2Flogincas&ticket={ticket_id}"
         try:
             response = requests.get(validation_url)
         except:
@@ -339,7 +344,7 @@ def logincas():
         login_user(user)
 
         logger.info("Login successful: "+user_attributes['user_id']+" with CAS "+user.email)
-        return redirect("https://vdi.insa-cvl.com/dashboard")
+        return redirect(f"{URL_VDI}/dashboard")
 
     logger.warning("Login failed: "+user_attributes['user_id']+" with CAS ")
     return jsonify({'message': 'Ticket is missing'}), 404
@@ -376,7 +381,6 @@ def logout():
     if user.cas:
         logger.info("User logout: "+user.id+", "+user.email+" with CAS")
         return jsonify({'message': 'Logout successful', 'cas': True}), 200
-        # return redirect("https://cas.insa-cvl.fr/cas/logout?service=https%3A%2F%2Fapi.insa-cvl.com")
     logger.info("User logout: "+user.id+", "+user.email)
     return jsonify({'message': 'Logout successful', 'cas': False}), 200
 
@@ -418,10 +422,10 @@ def check_auth_vnc():
     vm = VM.query.filter_by(vncurl=token_url).first()
     if vm:
         if vm.users_id == current_user.id:
-            logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id+" to Acces VM VNC : "+vm.name)
+            logger.info("Authentication check: "+current_user.email+", role: "+current_user.role+", id: "+current_user.id+" to Access VM VNC : "+vm.name)
             return jsonify({'message': 'Authentication check successful'}), 200
         else:
-            logger.warning("Wrong User, "+current_user.id+" want to acces to the VM : "+vm.name)
+            logger.warning("Wrong User, "+current_user.id+" wants to access to the VM : "+vm.name)
             return jsonify({'message': 'Unauthorized'}), 401
     else:
         logger.warning("VM Not Found")
@@ -500,11 +504,11 @@ def create_vm():
     # Ajout de la VM dans la DB au début du processus de création pour bloquer toute nouvelle création
     try:
         db.session.add(new_vm)
-        logger.info("New VM added to the DB")
+        logger.info("New VM added to the DB" + new_vm.name + " by "+current_user.email)
         db.session.commit()
     except:
-        logger.warning("Cant add the new VM to the DB")
-        return jsonify({'message': 'VM cant be created in the DB'}), 500
+        logger.warning("Can't add the new VM to the DB")
+        return jsonify({'message': "VM can't be created in the DB"}), 500
 
     template_name = Template.query.filter_by(id=data['template_id']).first().name
     
@@ -583,7 +587,7 @@ def vm_url_id(uuid):
     vm = VM.query.filter_by(id=uuid, users_id=current_user.id).first()
     if vm:
         token = vm.vncurl
-        return jsonify({"url": "https://vnc.insa-cvl.com/?path="+token+"&autoconnect=true&reconnect=true"}), 200
+        return jsonify({"url": f"{URL_VNC}/?path="+token+"&autoconnect=true&reconnect=true"}), 200
     else:
         return jsonify({'message': 'VM not found'}), 404
 
@@ -597,7 +601,7 @@ def vm_url_template(template_id):
     vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
     if vm:
         token = vm.vncurl
-        return jsonify({"url": "https://vnc.insa-cvl.com/?path="+token+"&autoconnect=true&reconnect=true"}), 200
+        return jsonify({"url": f"{URL_VNC}/?path="+token+"&autoconnect=true&reconnect=true"}), 200
     else:
         return jsonify({'message': 'Template not found'}), 404
 
@@ -640,7 +644,7 @@ def delete_vm():
                 server = conn_openstack.compute.find_server(vm.name)
                 conn_openstack.compute.delete_server(server)
             except:
-                return jsonify({'message': 'VM deletion failed'}), 500
+                return jsonify({'message': 'VM suppression failed'}), 500
             db.session.delete(vm)
             db.session.commit()
             return jsonify({'message': 'VM deleted successfully'}), 200

@@ -16,29 +16,29 @@ RUN mkdir -p /api/static
 COPY ./static/robots.txt /api/static/robots.txt
 
 # Partie variable d'environnement URLs
-ENV URL_VNC="https://vnc.insa-cvl.com"
-ENV URL_VDI="https://vdi.insa-cvl.com"
-ENV URL_API="https://api.insa-cvl.com"
+ENV URL_VNC=https://vnc.insa-cvl.com
+ENV URL_VDI=https://vdi.insa-cvl.com
+ENV URL_API=https://api.insa-cvl.com
 
 # Partie variable d'environnement API
-ENV FLASK_SECRET_KEY="secret"
-ENV FLASK_TOKEN_SECRET_KEY="secret"
-ENV DOMAIN="insa-cvl.com"
+ENV FLASK_SECRET_KEY=secret
+ENV FLASK_TOKEN_SECRET_KEY=secret
+ENV DOMAIN=insa-cvl.com
 
 # Partie variable d'environnement DB
-ENV DB_HOST="127.0.0.1"
-ENV DB_NAME="vdi"
-ENV DB_USER="vdi"
-ENV DB_PASSWORD="azerty"
+ENV DB_HOST=vdi-db
+ENV DB_NAME=vdi
+ENV DB_USER=vdi
+ENV DB_PASSWORD=azerty
 
 # Partie variable d'environnement OpenStack
-ENV OPENSTACK_PRIVATE_NETWORK_ID="0d49c37b-7077-4152-985c-f5a00ad20677"
-ENV OPENSTACK_USERNAME="admin"
-ENV OPENSTACK_PASSWORD="3pMrmW899b9y^2kiJa!6#Z#kE%@a2r"
-ENV OPENSTACK_AUTH_URL="http://172.10.3.60:5000/v3"
-ENV OPENSTACK_PROJECT_NAME="admin"
-ENV OPENSTACK_USER_DOMAIN_ID="default"
-ENV OPENSTACK_PROJECT_DOMAIN_ID="default"
+ENV OPENSTACK_PRIVATE_NETWORK_ID=0d49c37b-7077-4152-985c-f5a00ad20677
+ENV OPENSTACK_USERNAME=vdi
+ENV OPENSTACK_PASSWORD=vdi
+ENV OPENSTACK_AUTH_URL=http://127.0.0.1:5000/v3
+ENV OPENSTACK_PROJECT_NAME=vdi
+ENV OPENSTACK_USER_DOMAIN_ID=default
+ENV OPENSTACK_PROJECT_DOMAIN_ID=default
 
 
 EXPOSE 5001

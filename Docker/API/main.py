@@ -318,7 +318,7 @@ def deluser_admin_prof():
 def logincas():
     ticket_id = request.args.get('ticket')
     if ticket_id:
-        validation_url = f"https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket={ticket_id}"
+        validation_url = "https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id
         try:
             response = requests.get(validation_url)
         except:

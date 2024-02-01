@@ -23,7 +23,7 @@ import os
 ################
 app = Flask(__name__, static_folder='static') # Adding static folder for robots.txt
 CORS(app, supports_credentials=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi5' # Change these credentials to your own database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi10' # Change these credentials to your own database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key' # Change this to your own secret key
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key' # Change this to your own secret key
@@ -812,3 +812,42 @@ if __name__ == '__main__':
                 logger.info("Default etudiant user created with password: "+random_password)
     logger.info('API started')
     app.run(debug=True, host="0.0.0.0", port=5001)
+else:
+    logger.info('Starting API')
+    with app.app_context():
+        logger.info('Creating DB')
+        db.create_all()
+        db.session.commit()
+        user = User.query.first()
+        if not user:
+            # Create default admin user
+            if not User.query.filter_by(email="admin@admin.fr").first():
+                logger.info('Creating default admin user')
+                random_password = "admin"
+                hashed_password = PasswordHasher().hash(random_password) 
+                new_user = User(id="2", email="admin@admin.fr", first_name="Admin", last_name="VDI",
+                                password=hashed_password, role="admin", cas=False)
+                db.session.add(new_user)
+                db.session.commit()
+                logger.info("Default admin user created with password: "+random_password)
+            # Create default prof user
+            if not User.query.filter_by(email="prof@prof.fr").first():
+                logger.info('Creating default prof user')
+                random_password = "prof"
+                hashed_password = PasswordHasher().hash(random_password) 
+                new_user = User(id="3", email="prof@prof.fr", first_name="Prof", last_name="VDI",
+                                password=hashed_password, role="prof", cas=False)
+                db.session.add(new_user)
+                db.session.commit()
+                logger.info("Default prof user created with password: "+random_password)
+            # Create default etudiant user
+            if not User.query.filter_by(email="etudiant@etudiant.fr").first():
+                logger.info('Creating default etudiant user')
+                random_password = "etudiant"
+                hashed_password = PasswordHasher().hash(random_password) 
+                new_user = User(id="4", email="etudiant@etudiant.fr", first_name="Etudiant", last_name="VDI",
+                                password=hashed_password, role="user", cas=False)
+                db.session.add(new_user)
+                db.session.commit()
+                logger.info("Default etudiant user created with password: "+random_password)
+    logger.info('API started')

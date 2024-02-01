@@ -18,20 +18,28 @@ from flask_migrate import Migrate
 import logging
 import os
 
+
+
+URL_VDI = os.getenv('URL_VDI')
+URL_VNC = os.getenv('URL_VNC')
+URL_API = os.getenv('URL_API')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_NAME = os.getenv('DB_NAME')
+
 ################
 ### Vars APP ###
 ################
 app = Flask(__name__, static_folder='static') # Adding static folder for robots.txt
 CORS(app, supports_credentials=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi4' # Change these credentials to your own database
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+mysqlconnector://"+DB_USER+":"+DB_PASSWORD+"@"+DB_HOST+"/"+DB_NAME # Change these credentials to your own database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your_secret_key' # Change this to your own secret key
-app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key' # Change this to your own secret key
-app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com' # Change to your domain to set the cookie for all subdomains
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY') # Change this to your own secret key
+app.config['TOKEN_SECRET_KEY'] = os.getenv('FLASK_TOKEN_SECRET_KEY') # Change this to your own secret key
+app.config['SESSION_COOKIE_DOMAIN'] = os.getenv('DOMAIN') # Change to your domain to set the cookie for all subdomains
 
-URL_VDI = f"https://vdi.insa-cvl.com"
-URL_VNC = f"https://vnc.insa-cvl.com"
-URL_API = f"https://api.insa-cvl.com"
+
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

@@ -27,8 +27,8 @@ ENV DOMAIN="insa-cvl.com"
 
 # Partie variable d'environnement DB
 ENV DB_HOST="127.0.0.1"
-ENV DB_NAME="vdi4"
-ENV DB_USER="root"
+ENV DB_NAME="vdi"
+ENV DB_USER="vdi"
 ENV DB_PASSWORD="azerty"
 
 # Partie variable d'environnement OpenStack

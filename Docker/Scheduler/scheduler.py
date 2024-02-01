@@ -4,12 +4,13 @@ import mysql.connector
 import back_openstack as openstack
 import uuid
 import datetime
+import os
 
 db_config = {
-    'host': '127.0.0.1',
-    'database': 'vdi4',
-    'user': 'root',
-    'password': 'azerty',
+    'host': os.getenv('DB_HOST'),
+    'database': os.getenv('DB_NAME'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
 }
 
 conn_openstack = openstack.conn

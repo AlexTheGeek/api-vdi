@@ -1,17 +1,18 @@
 import base64
 from openstack import connection as connexion
+import os
 
 #Constants 
-USERNAME = "admin"
-PASSWORD = "3pMrmW899b9y^2kiJa!6#Z#kE%@a2r"
+USERNAME = os.getenv('OPENSTACK_USERNAME')
+PASSWORD = os.getenv('OPENSTACK_PASSWORD')
 #Network Constants
-PRIVATE_NETWORK_ID = "0d49c37b-7077-4152-985c-f5a00ad20677"
-EXTERNAL_NETWORK_ID = "e64da4e4-57c4-473a-9b4d-548c800b654a"
-AUTH_URL = "http://172.10.3.60:5000/v3"
+PRIVATE_NETWORK_ID = os.getenv('OPENSTACK_PRIVATE_NETWORK_ID')
+# EXTERNAL_NETWORK_ID = os.getenv('')
+AUTH_URL = os.getenv('OPENSTACK_AUTH_URL')
 #Openstack Constants
-PROJECT_NAME = "admin"
-USER_DOMAIN_ID = "default"
-PROJECT_DOMAIN_ID = "default"
+PROJECT_NAME = os.getenv('OPENSTACK_PROJECT_NAME')
+USER_DOMAIN_ID = os.getenv('OPENSTACK_USER_DOMAIN_ID')
+PROJECT_DOMAIN_ID = os.getenv('OPENSTACK_PROJECT_DOMAIN_ID')
 
 conn = connexion.Connection(auth_url=AUTH_URL, project_name=PROJECT_NAME, username=USERNAME, user_domain_id=USER_DOMAIN_ID, project_domain_id=PROJECT_DOMAIN_ID, password=PASSWORD)
 

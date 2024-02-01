@@ -23,7 +23,7 @@ import os
 ################
 app = Flask(__name__, static_folder='static') # Adding static folder for robots.txt
 CORS(app, supports_credentials=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi4' # Change these credentials to your own database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:azerty@127.0.0.1/vdi5' # Change these credentials to your own database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key' # Change this to your own secret key
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key' # Change this to your own secret key

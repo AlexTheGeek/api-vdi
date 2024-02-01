@@ -21,7 +21,9 @@ ENV URL_VDI="https://vdi.insa-cvl.com/"
 ENV URL_API="https://api.insa-cvl.com/"
 
 # Partie variable d'environnement API
-
+ENV FLASK_SECRET_KEY="secret"
+ENV FLASK_TOKEN_SECRET_KEY="secret"
+ENV DOMAIN="insa-cvl.com"
 
 # Partie variable d'environnement DB
 ENV DB_HOST="127.0.0.1"

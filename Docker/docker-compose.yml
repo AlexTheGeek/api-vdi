@@ -1,0 +1,54 @@
+version: "3.9"
+services:
+  vdi-api:
+    image: vdi-api:latest
+    container_name: vdi-api
+    restart: always
+    ports:
+      - 5001:5001
+    environment:
+      - URL_VNC="https://vnc.insa-cvl.com/"
+      - URL_VDI="https://vdi.insa-cvl.com/"
+      - URL_API="https://api.insa-cvl.com/"
+      - DB_HOST="vdi-db"
+      - DB_NAME="vdi"
+      - DB_USER="vdi"
+      - DB_PASSWORD="azerty"
+      - OPENSTACK_PRIVATE_NETWORK_ID="0d49c37b-7077-4152-985c-f5a00ad20677"
+      - OPENSTACK_USERNAME="admin"
+      - OPENSTACK_PASSWORD="3pMrmW899b9y^2kiJa!6#Z#kE%@a2r"
+      - OPENSTACK_AUTH_URL="http://172.10.3.60:5000/v3"
+      - OPENSTACK_PROJECT_NAME="admin"
+      - OPENSTACK_USER_DOMAIN_ID="default"
+      - OPENSTACK_PROJECT_DOMAIN_ID="default"
+
+  vdi-scheduler:
+    image: vdi-scheduler:latest
+    container_name: vdi-scheduler
+    restart: always
+    environment:
+      - DB_HOST="vdi-db"
+      - DB_NAME="vdi"
+      - DB_USER="vdi"
+      - DB_PASSWORD="azerty"
+      - OPENSTACK_PRIVATE_NETWORK_ID="0d49c37b-7077-4152-985c-f5a00ad20677"
+      - OPENSTACK_USERNAME="admin"
+      - OPENSTACK_PASSWORD="3pMrmW899b9y^2kiJa!6#Z#kE%@a2r"
+      - OPENSTACK_AUTH_URL="http://172.10.3.60:5000/v3"
+      - OPENSTACK_PROJECT_NAME="admin"
+      - OPENSTACK_USER_DOMAIN_ID="default"
+      - OPENSTACK_PROJECT_DOMAIN_ID="default" 
+
+  vdi-db:
+    image: mariadb:10.11.4
+    container_name: vdi-db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=azerty
+      - MYSQL_DATABASE=vdi
+      - MYSQL_USER=vdi
+      - MYSQL_PASSWORD=azerty
+    volumes:
+      - ./vdi-db:/var/lib/mysql
+
+      

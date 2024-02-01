@@ -21,6 +21,8 @@ services:
       - OPENSTACK_PROJECT_NAME="admin"
       - OPENSTACK_USER_DOMAIN_ID="default"
       - OPENSTACK_PROJECT_DOMAIN_ID="default"
+    depends_on:
+      - vdi-db
 
   vdi-scheduler:
     image: vdi-scheduler:latest
@@ -38,6 +40,8 @@ services:
       - OPENSTACK_PROJECT_NAME="admin"
       - OPENSTACK_USER_DOMAIN_ID="default"
       - OPENSTACK_PROJECT_DOMAIN_ID="default" 
+    depends_on:
+      - vdi-db
 
   vdi-db:
     image: mariadb:10.11.4

@@ -27,7 +27,6 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_HOST = os.getenv('DB_HOST')
 DB_NAME = os.getenv('DB_NAME')
-print(DB_NAME)
 
 ################
 ### Vars APP ###
@@ -353,9 +352,9 @@ def logincas():
         login_user(user)
 
         logger.info("Login successful: "+user_attributes['user_id']+" with CAS "+user.email)
-        return redirect(f"{URL_VDI}/dashboard")
+        return redirect(URL_VDI+"/dashboard")
 
-    logger.warning("Login failed: "+user_attributes['user_id']+" with CAS ")
+    logger.warning("Login failed: with CAS ")
     return jsonify({'message': 'Ticket is missing'}), 404
 
 

@@ -7,12 +7,12 @@ services:
     ports:
       - 5001:5001
     environment:
-      - URL_VNC="https://vnc.insa-cvl.com/"
-      - URL_VDI="https://vdi.insa-cvl.com/"
-      - URL_API="https://api.insa-cvl.com/"
-      - DB_HOST="vdi-db"
-      - DB_NAME="vdi"
-      - DB_USER="vdi"
+      - URL_VNC=https://vnc.insa-cvl.com
+      - URL_VDI=https://vdi.insa-cvl.com
+      - URL_API=https://api.insa-cvl.com
+      - DB_HOST=vdi-db
+      - DB_NAME=vdi
+      - DB_USER=vdi
       - DB_PASSWORD="azerty"
       - OPENSTACK_PRIVATE_NETWORK_ID="0d49c37b-7077-4152-985c-f5a00ad20677"
       - OPENSTACK_USERNAME="admin"

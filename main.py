@@ -29,9 +29,9 @@ app.config['SECRET_KEY'] = 'your_secret_key' # Change this to your own secret ke
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key' # Change this to your own secret key
 app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com' # Change to your domain to set the cookie for all subdomains
 
-URL_VDI = f"https://vdi.insa-cvl.com"
-URL_VNC = f"https://vnc.insa-cvl.com"
-URL_API = f"https://api.insa-cvl.com"
+URL_VDI = "https://vdi.insa-cvl.com"
+URL_VNC = "https://vnc.insa-cvl.com"
+URL_API = "https://api.insa-cvl.com"
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -344,9 +344,9 @@ def logincas():
         login_user(user)
 
         logger.info("Login successful: "+user_attributes['user_id']+" with CAS "+user.email)
-        return redirect(f"{URL_VDI}/dashboard")
+        return redirect(URL_VDI+"/dashboard")
 
-    logger.warning("Login failed: "+user_attributes['user_id']+" with CAS ")
+    logger.warning("Login failed: with CAS ")
     return jsonify({'message': 'Ticket is missing'}), 404
 
 
@@ -587,7 +587,7 @@ def vm_url_id(uuid):
     vm = VM.query.filter_by(id=uuid, users_id=current_user.id).first()
     if vm:
         token = vm.vncurl
-        return jsonify({"url": f"{URL_VNC}/?path="+token+"&autoconnect=true&reconnect=true"}), 200
+        return jsonify({"url": URL_VNC+"/?path="+token+"&autoconnect=true&reconnect=true"}), 200
     else:
         return jsonify({'message': 'VM not found'}), 404
 
@@ -601,7 +601,7 @@ def vm_url_template(template_id):
     vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
     if vm:
         token = vm.vncurl
-        return jsonify({"url": f"{URL_VNC}/?path="+token+"&autoconnect=true&reconnect=true"}), 200
+        return jsonify({"url": URL_VNC+"/?path="+token+"&autoconnect=true&reconnect=true"}), 200
     else:
         return jsonify({'message': 'Template not found'}), 404
 

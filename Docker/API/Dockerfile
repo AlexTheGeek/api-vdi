@@ -2,7 +2,7 @@ FROM python:3.11.2-bullseye
 
 RUN apt update
 
-RUN pip install gunicorn==20.1.0 python-openstackclient==6.0.0 Flask==3.0.0 Flask-API==1.1 Flask-Cors==4.0.0 Flask-Login==0.6.3 Flask-Migrate==4.0.5 Flask-SQLAlchemy==3.1.1 argon2-cffi==21.1.0 requests==2.28.1
+RUN pip install gunicorn==20.1.0 python-openstackclient==6.0.0 Flask==3.0.0 Flask-API==1.1 Flask-Cors==4.0.0 Flask-Login==0.6.3 Flask-Migrate==4.0.5 Flask-SQLAlchemy==3.1.1 argon2-cffi==21.1.0 requests==2.28.1 
 
 
 RUN mkdir /api
@@ -13,7 +13,7 @@ COPY main.py .
 COPY back_openstack.py .
 
 RUN mkdir -p /api/static
-COPY robots.txt /api/static/robots.txt
+COPY ./static/robots.txt /api/static/robots.txt
 
 # Partie variable d'environnement URLs
 ENV URL_VNC="https://vnc.insa-cvl.com"

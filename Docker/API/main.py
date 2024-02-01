@@ -595,7 +595,7 @@ def vm_url_id(uuid):
     vm = VM.query.filter_by(id=uuid, users_id=current_user.id).first()
     if vm:
         token = vm.vncurl
-        return jsonify({"url": f"{URL_VNC}/?path="+token+"&autoconnect=true&reconnect=true"}), 200
+        return jsonify({"url": URL_VNC+"/?path="+token+"&autoconnect=true&reconnect=true"}), 200
     else:
         return jsonify({'message': 'VM not found'}), 404
 
@@ -609,7 +609,7 @@ def vm_url_template(template_id):
     vm = VM.query.filter_by(template_id=template_id, users_id=current_user.id).first()
     if vm:
         token = vm.vncurl
-        return jsonify({"url": f"{URL_VNC}/?path="+token+"&autoconnect=true&reconnect=true"}), 200
+        return jsonify({"url": URL_VNC+"/?path="+token+"&autoconnect=true&reconnect=true"}), 200
     else:
         return jsonify({'message': 'Template not found'}), 404
 

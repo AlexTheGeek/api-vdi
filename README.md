@@ -22,14 +22,15 @@ The documentation below is for the installation of the API, sheduler and the fro
     6.1. `mkdir -p /home/vdi/VDI-API`  
     6.2. `cd /home/vdi/VDI-API`  
     6.3. `git clone https://github.com/AlextTheGeek/api-vdi.git`  
-    6.4. `cd api-vdi`
-7. Install the requirements of the api and scheduler: `pip install -r requirements.txt`
+    6.4. `cd api-vdi`  
+7. Install the requirements of the api and scheduler: `pip install -r requirements.txt`  
+8. Install the openstack client : `apt install python3-openstacksdk` or `pip install python3-openstacksdk`. You server can need some other packages like `python3-openstackclient` that you can install with `apt install python3-openstackclient` or `pip install python3-openstackclient`.  
 8. Create a folder `/home/vdi/VDI-APP` for the API and and clone this repository in it  
     8.1. `mkdir -p /home/vdi/VDI-APP`  
     8.2. `cd /home/vdi/VDI-APP`  
     8.3. `git clone https://github.com/loimax/vdi.git`  
-    8.4. `cd vdi`
-9. Install the requirements of the vdi (frontend) : `pip install -r requirements.txt`
+    8.4. `cd vdi`  
+9. Install the requirements of the vdi (frontend) : `pip install -r requirements.txt`  
 10. Create a folder /var/log/VDI/API for the logs of the API : `mkdir -p /var/log/VDI/APP`  
     10.1. Set the rights of the user who runs the API (here vdi) on this folder : `chown -R vdi:vdi /var/log/VDI/APP`  
 11. Create a folder /var/log/VDI/API for the logs of the API : `mkdir -p /var/log/VDI/API`  

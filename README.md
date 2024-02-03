@@ -33,7 +33,7 @@ The documentation below is for the installation of the API, sheduler and the fro
 9. Install the requirements of the vdi (frontend) : `pip install -r requirements.txt`  
 10. Create a folder /var/log/VDI/API for the logs of the API : `mkdir -p /var/log/VDI/APP`  
     10.1. Set the rights of the user who runs the API (here vdi) on this folder : `chown -R vdi:vdi /var/log/VDI/APP`  
-    11.2 Create all necessary files for the logs : `touch /var/log/VDI/API/access.log /var/log/VDI/API/error.log`
+    10.2 Create all necessary files for the logs : `touch /var/log/VDI/API/access.log /var/log/VDI/API/error.log`
 11. Create a folder /var/log/VDI/API for the logs of the API : `mkdir -p /var/log/VDI/API`  
     11.1. Set the rights of the user who runs the API (here vdi) on this folder : `chown -R vdi:vdi /var/log/VDI/API` 
     11.2 Create all necessary files for the logs : `touch /var/log/VDI/API/access.log /var/log/VDI/API/error.log /var/log/VDI/APP/api-flask.log` 

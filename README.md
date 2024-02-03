@@ -282,3 +282,7 @@ services:
         restart: always
     ```	
 4. Check the logs : `docker logs vdi-app` or `docker-compose logs -f`
+
+
+## Nginx Configuration
+You can use Nginx to serve the API, the scheduler and the frontend. You can find all the configuration files in the [Nginx folder](https://github.com/AlexTheGeek/api-vdi/tree/main/Nginx/Example).  

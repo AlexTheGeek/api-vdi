@@ -9,7 +9,7 @@ This API can manage the following elements :
 - Templates
 
 You can find the frontend of this API [here](https://github.com/loimax/vdi).  
-The documentation below is for the installation of the API, sheduler and the frontend.  
+The documentation below is for the installation of the API, scheduler and the frontend.  
 
 ## Installation without Docker
 ### Requirements
@@ -24,7 +24,7 @@ The documentation below is for the installation of the API, sheduler and the fro
     6.3. `git clone https://github.com/AlextTheGeek/api-vdi.git`  
     6.4. `cd api-vdi`  
 7. Install the requirements of the api and scheduler: `pip install -r requirements.txt`  
-8. Install the openstack client : `apt install python3-openstacksdk` or `pip install python3-openstacksdk`. You server can need some other packages like `python3-openstackclient` that you can install with `apt install python3-openstackclient` or `pip install python3-openstackclient`.  
+8. Install the openstack client : `apt install python3-openstacksdk` or `pip install python3-openstacksdk`. Your server can need some other packages like `python3-openstackclient` that you can install with `apt install python3-openstackclient` or `pip install python3-openstackclient`.  
 8. Create a folder `/home/vdi/VDI-APP` for the API and and clone this repository in it  
     8.1. `mkdir -p /home/vdi/VDI-APP`  
     8.2. `cd /home/vdi/VDI-APP`  

@@ -6,10 +6,10 @@ import uuid
 import datetime
 
 db_config = {
-    'host': '127.0.0.1',
-    'database': 'vdi4',
-    'user': 'root',
-    'password': 'azerty',
+    'host': '127.0.0.1', # change the host to the one you are using
+    'database': 'vdi4', # change the name of the database to the one you are using
+    'user': 'root', # change the user to the one you are using
+    'password': 'azerty', # change the password to the one you are using
 }
 
 conn_openstack = openstack.conn

@@ -3,11 +3,11 @@ Description=Gunicorn instance to serve API VDI
 After=network.target
 
 [Service]
-User=alex
-Group=alex
-WorkingDirectory=/home/alex/VDI-API-INSA
-Environment="PATH=/home/alex/.local/bin"
-ExecStart=/home/alex/.local/bin/gunicorn --access-logfile /var/log/VDI/API/access.log --error-logfile /var/log/VDI/API/error.log --workers 3 --bind 0.0.0.0:5001 main:app
+User=vdi
+Group=vdi
+WorkingDirectory=/home/vdi/VDI-API
+Environment="PATH=/home/vdi/.local/bin"
+ExecStart=/home/vdi/.local/bin/gunicorn --access-logfile /var/log/VDI/API/access.log --error-logfile /var/log/VDI/API/error.log --workers 3 --bind 0.0.0.0:5001 main:app
 
 [Install]
 WantedBy=multi-user.target

@@ -47,6 +47,15 @@ services:
     links:
       - vdi-db
 
+  vdi-app:
+    image: vdi-app:latest
+    container_name: vdi-app
+    ports:
+        - "127.0.0.1:5000:5000"
+    environment:
+        - URL_API=https://api.insa-cvl.com
+    restart: always
+
   vdi-db:
     image: mariadb:10.11.4
     container_name: vdi-db

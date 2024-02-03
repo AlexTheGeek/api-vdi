@@ -29,9 +29,9 @@ app.config['SECRET_KEY'] = 'your_secret_key' # Change this to your own secret ke
 app.config['TOKEN_SECRET_KEY'] = 'your_token_secret_key' # Change this to your own secret key
 app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com' # Change to your domain to set the cookie for all subdomains
 
-URL_VDI = "https://vdi.insa-cvl.com"
-URL_VNC = "https://vnc.insa-cvl.com"
-URL_API = "https://api.insa-cvl.com"
+URL_VDI = "https://vdi.insa-cvl.com" # Change to your vdi domain
+URL_VNC = "https://vnc.insa-cvl.com" # Change to your vnc domain
+URL_API = "https://api.insa-cvl.com" # Change to your api domain
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

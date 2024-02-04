@@ -264,7 +264,7 @@ services:
 
 
 ### APP
-[Github Repository](https://gitub.com/loimax/vdi)  
+[Github Repository](https://github.com/loimax/vdi)  
 
 1. Build the image : `docker build -t vdi-app .` or `docker-compose build` with the docker-compose.yml file.
 2. Change the environment variable `URL_API` to the API domain (ex: https://api.insa-cvl.com) in the docker-compose.yml file.

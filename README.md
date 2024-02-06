@@ -55,6 +55,7 @@ FLUSH PRIVILEGES;
   - URL_VNC : URL of the VNC server (ex: https://vnc.insa-cvl.com)
   - URL_VDI : URL of the VDI server (ex: https://vdi.insa-cvl.com)
   - URL_API : URL of the API server (ex: https://api.insa-cvl.com)
+  - URL_API_CAS : URL of the API without https:// (ex: api.insa-cvl.com)
   - app.config['SECRET_KEY'] : Secret key of the API 
   - app.config['TOKEN_SECRET_KEY'] : Secret key of the token
   - app.config['SESSION_COOKIE_DOMAIN'] : Domain of the session cookie (ex: insa-cvl.com)
@@ -175,6 +176,7 @@ We recommend to use a MariaDB or MySQL database.  You can find an example of a d
   - URL_VNC : URL of the VNC server (ex: https://vnc.insa-cvl.com)
   - URL_VDI : URL of the VDI server (ex: https://vdi.insa-cvl.com)
   - URL_API : URL of the API server (ex: https://api.insa-cvl.com)
+  - URL_API_CAS : URL of the API without https:// (ex: api.insa-cvl.com)
   - DB_HOST : Host of the database (ex: vdi-db)
   - DB_NAME : Name of the database (ex: vdi)
   - DB_USER : User of the database (ex: vdi)

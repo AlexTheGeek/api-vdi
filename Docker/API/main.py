@@ -23,6 +23,7 @@ import os
 URL_VDI = os.getenv('URL_VDI')
 URL_VNC = os.getenv('URL_VNC')
 URL_API = os.getenv('URL_API')
+URL_API_CAS = os.getenv('URL_API_CAS')
 DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_HOST = os.getenv('DB_HOST')
@@ -326,7 +327,7 @@ def deluser_admin_prof():
 def logincas():
     ticket_id = request.args.get('ticket')
     if ticket_id:
-        validation_url = "https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id
+        validation_url = "https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2F"+URL_API_CAS+"%2Flogincas&ticket="+ticket_id
         try:
             response = requests.get(validation_url)
         except:

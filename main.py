@@ -32,6 +32,7 @@ app.config['SESSION_COOKIE_DOMAIN'] = 'insa-cvl.com' # Change to your domain to 
 URL_VDI = "https://vdi.insa-cvl.com" # Change to your vdi domain
 URL_VNC = "https://vnc.insa-cvl.com" # Change to your vnc domain
 URL_API = "https://api.insa-cvl.com" # Change to your api domain
+URL_API_CAS = "api.insa-cvl.com" 
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -318,7 +319,7 @@ def deluser_admin_prof():
 def logincas():
     ticket_id = request.args.get('ticket')
     if ticket_id:
-        validation_url = "https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2Fapi.insa-cvl.com%2Flogincas&ticket="+ticket_id 
+        validation_url = "https://cas.insa-cvl.fr/cas/p3/serviceValidate?service=https%3A%2F%2F"+URL_API_CAS+"%2Flogincas&ticket="+ticket_id 
         try:
             response = requests.get(validation_url)
         except:

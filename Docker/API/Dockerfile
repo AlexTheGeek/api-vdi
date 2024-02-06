@@ -23,6 +23,7 @@ COPY ./static/robots.txt /api/static/robots.txt
 ENV URL_VNC=https://vnc.insa-cvl.com
 ENV URL_VDI=https://vdi.insa-cvl.com
 ENV URL_API=https://api.insa-cvl.com
+ENV URL_API_CAS=api.insa-cvl.com
 
 # Partie variable d'environnement API
 ENV FLASK_SECRET_KEY=secret

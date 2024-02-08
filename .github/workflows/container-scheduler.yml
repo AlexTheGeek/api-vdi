@@ -32,7 +32,7 @@ jobs:
           image: ${{ env.NAME }}
           context: Docker/Scheduler
           tags: latest
-          containerfiles: Dockerfile
+          containerfiles: Docker/Scheduler/Dockerfile
           layers: false
           oci: true
 

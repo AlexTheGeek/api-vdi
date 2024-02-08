@@ -32,7 +32,7 @@ jobs:
           image: ${{ env.NAME }}
           context: Docker/API
           tags: latest
-          containerfiles: Dockerfile
+          containerfiles: Docker/API/Dockerfile
           layers: false
           oci: true
 

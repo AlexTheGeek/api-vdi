@@ -820,7 +820,7 @@ if __name__ == '__main__':
                 db.session.commit()
                 logger.info("Default etudiant user created with password: "+random_password)
     logger.info('API started')
-    app.run(debug=True, host="0.0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=5001)
 else:
     logger.info('Starting API')
     with app.app_context():

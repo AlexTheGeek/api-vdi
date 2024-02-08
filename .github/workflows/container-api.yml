@@ -1,4 +1,4 @@
-name: "Build container image"
+name: "Building the API container image"
 
 env:
   NAME: "vdi-api-openstack"

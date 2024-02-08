@@ -1,4 +1,4 @@
-name: "Building the API container image"
+name: "Building the Scheduler container image"
 
 env:
   NAME: "vdi-scheduler-openstack"

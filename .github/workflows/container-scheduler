@@ -1,0 +1,56 @@
+name: "Building the API container image"
+
+env:
+  NAME: "vdi-scheduler-openstack"
+  REGISTRY: ghcr.io/alexthegeek
+
+on:
+  push:
+    branches:
+      - main
+
+# Authorise :
+# - Accès en lecture seule au contenu du dépôt Git
+# - Accès en lecture/écriture au "packages" pour avoir l'accès au registre de
+#   conteneurs de GitHub
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      # Récupération du dépôt Git
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Construction de l'image de conteneur avec buildah
+      - name: Build container image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.NAME }}
+          context: Docker/Scheduler
+          tags: latest
+          containerfiles: Dockerfile
+          layers: false
+          oci: true
+
+      # Publication de l'image de conteneur dans le regsitre de GitHub avec podman
+      - name: Push to Container Registry
+        uses: redhat-actions/push-to-registry@v2
+        id: push
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          image: ${{ env.NAME }}
+          tags: latest
+
+      # Authentification au registre de conteneur de GitHub
+      - name: Login to Container Registry
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}

@@ -10,7 +10,8 @@ from argon2 import PasswordHasher
 import back_openstack as openstack
 from flask_cors import CORS
 import requests
-import xml.etree.ElementTree as ET
+# import xml.etree.ElementTree as ET # Security issue 
+import defusedxml.ElementTree as ET
 import random
 import string
 from functools import wraps

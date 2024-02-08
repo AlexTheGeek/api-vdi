@@ -1,4 +1,4 @@
-FROM python:3.11.2-bookworm
+FROM python:3.11.4-bookworm
 
 RUN apt update
 
